@@ -6,11 +6,10 @@ use Class::Tiny::Chained qw(client_id client_secret token token_secret), {
 
 use Carp 'croak';
 use Digest::SHA 'hmac_sha1';
-use Encode 'encode';
 use List::Util 'pairs', 'pairgrep';
 use MIME::Base64 'encode_base64';
 use Scalar::Util 'blessed';
-use URI::Escape 'uri_escape';
+use URI::Escape 'uri_escape_utf8';
 
 use Role::Tiny::With;
 with 'WWW::OAuth::Role::Authorizer';
@@ -59,7 +58,7 @@ sub authorize_request {
 	
 	$oauth_params{oauth_signature} = $self->$sign($req, \%oauth_params, $client_secret, $token_secret);
 	
-	my $auth_str = join ', ', map { $_ . '="' . uri_escape($oauth_params{$_}) . '"' } sort keys %oauth_params;
+	my $auth_str = join ', ', map { $_ . '="' . uri_escape_utf8($oauth_params{$_}) . '"' } sort keys %oauth_params;
 	$req->set_header("OAuth $auth_str");
 	return $self;
 }
@@ -72,13 +71,13 @@ sub _nonce {
 
 sub _signature_plaintext {
 	my ($self, $req, $oauth_params, $client_secret, $token_secret) = @_;
-	return uri_escape($client_secret) . '&' . uri_escape($token_secret // '');
+	return uri_escape_utf8($client_secret) . '&' . uri_escape_utf8($token_secret // '');
 }
 
 sub _signature_hmac_sha1 {
 	my ($self, $req, $oauth_params, $client_secret, $token_secret) = @_;
 	my $base_str = _signature_base_string($req, $oauth_params);
-	my $signing_key = uri_escape($client_secret) . '&' . uri_escape($token_secret // '');
+	my $signing_key = uri_escape_utf8($client_secret) . '&' . uri_escape_utf8($token_secret // '');
 	return encode_base64(hmac_sha1($base_str, $signing_key), '');
 }
 
@@ -91,14 +90,14 @@ sub _signature_rsa_sha1 {
 sub _signature_base_string {
 	my ($req, $oauth_params) = @_;
 	
-	my @encoded_params = map { uri_escape(encode('UTF-8', $_)) } (@{$req->query_pairs}, @{$req->body_pairs}, %$oauth_params);
+	my @encoded_params = map { uri_escape_utf8($_) } (@{$req->query_pairs}, @{$req->body_pairs}, %$oauth_params);
 	my @sorted_pairs = sort { ($a->[0] cmp $b->[0]) or ($a->[1] cmp $b->[1]) } pairs @encoded_params;
 	my $params_str = join '&', map { $_->[0] . '=' . $_->[1] } @sorted_pairs;
 	
 	my $base_url = URI->new($req->url);
 	$base_url->query(undef);
 	$base_url->fragment(undef);
-	return uc($req->method) . '&' . uri_escape($base_url) . '&' . uri_escape($params_str);
+	return uc($req->method) . '&' . uri_escape_utf8($base_url) . '&' . uri_escape_utf8($params_str);
 }
 
 1;

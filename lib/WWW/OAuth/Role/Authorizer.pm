@@ -4,6 +4,8 @@ use Role::Tiny;
 
 our $VERSION = '0.001';
 
+requires 'authorize_request';
+
 1;
 
 =head1 NAME

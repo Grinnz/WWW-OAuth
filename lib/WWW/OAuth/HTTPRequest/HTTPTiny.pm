@@ -1,10 +1,20 @@
 package WWW::OAuth::HTTPRequest::HTTPTiny;
 
-use Class::Tiny::Chained;
+use Class::Tiny::Chained 'method', 'url', 'content', { headers => sub { {} } };
+
 use Role::Tiny::With;
 with 'WWW::OAuth::Role::HTTPTiny';
 
 our $VERSION = '0.001';
+
+sub body {
+	my $self = shift;
+	return $self->content unless @_;
+	$self->content(shift);
+	return $self;
+}
+
+sub set_header { $_[0]->headers->{$_[1]} = $_[2]; $_[0] }
 
 1;
 

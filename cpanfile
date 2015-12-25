@@ -6,6 +6,7 @@ requires 'Encode';
 requires 'List::Util' => '1.29';
 requires 'MIME::Base64';
 requires 'Role::Tiny' => '2.000000';
+requires 'Scalar::Util';
 requires 'URI';
 requires 'URI::Escape';
 requires 'URI::QueryParam';

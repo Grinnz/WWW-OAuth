@@ -1,11 +1,13 @@
 package WWW::OAuth::Authorizer::OAuth1_0;
 
-use Class::Tiny::Chained;
+use Class::Tiny::Chained qw(client_id client_secret token token_secret);
+
 use Carp 'croak';
 use Digest::SHA 'hmac_sha1';
 use Encode 'encode';
 use List::Util 'pairs', 'pairgrep';
 use MIME::Base64 'encode_base64';
+use Scalar::Util 'blessed';
 use URI::Escape 'uri_escape';
 
 use Role::Tiny::With;
@@ -14,11 +16,14 @@ with 'WWW::OAuth::Role::Authorizer';
 our $VERSION = '0.001';
 
 sub authorize_request {
-	my ($self, %params) = @_;
-	my ($req, $client_id, $client_secret, $token, $token_secret) =
-		@params{'request','client_id','client_secret','token','token_secret'};
-	
+	my ($self, $req) = @_;
 	croak 'No request to authorize' unless defined $req;
+	croak 'Request does not perform the role WWW::OAuth::HTTPRequest'
+		unless blessed $req and $req->DOES('WWW::OAuth::HTTPRequest');
+	
+	my ($client_id, $client_secret, $token, $token_secret) =
+		($self->client_id, $self->client_secret, $self->token, $self->token_secret);
+	
 	croak 'Client ID and secret are required to authorize'
 		unless defined $client_id and defined $client_secret;
 	
@@ -33,8 +38,10 @@ sub authorize_request {
 	
 	# All oauth parameters should be moved to the header
 	my %body_oauth_params = pairgrep { $a =~ m/^oauth_/ } @{$req->body_pairs};
-	%oauth_params = (%oauth_params, %body_oauth_params);
-	$req->remove_body_params(keys %body_oauth_params);
+	if (%body_oauth_params) {
+		%oauth_params = (%oauth_params, %body_oauth_params);
+		$req->remove_body_params(keys %body_oauth_params);
+	}
 	
 	# This parameter is not allowed when creating the signature
 	delete $oauth_params{oauth_signature};

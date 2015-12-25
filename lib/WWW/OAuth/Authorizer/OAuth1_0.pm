@@ -9,6 +9,7 @@ use Digest::SHA 'hmac_sha1';
 use List::Util 'pairs', 'pairgrep';
 use MIME::Base64 'encode_base64';
 use Scalar::Util 'blessed';
+use URI;
 use URI::Escape 'uri_escape_utf8';
 
 use Role::Tiny::With;

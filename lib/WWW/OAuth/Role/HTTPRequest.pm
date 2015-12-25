@@ -8,7 +8,7 @@ use Role::Tiny;
 
 our $VERSION = '0.001';
 
-requires 'method', 'url', 'body', 'set_header';
+requires 'method', 'url', 'body', 'body_is_form', 'set_header';
 
 sub query_pairs { [URI->new(shift->url)->query_form] }
 

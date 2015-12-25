@@ -38,7 +38,8 @@ sub authorize_request {
 		unless defined $client_id and defined $client_secret;
 	
 	$signature_method = 'RSA-SHA1' if blessed $signature_method and $signature_method->can('sign');
-	my $sign = $signature_methods{$signature_method} // croak "Unknown signature method $signature_method";
+	my $sign = $signature_methods{$signature_method};
+	croak "Unknown signature method $signature_method" unless defined $sign;
 	
 	my %oauth_params = (
 		oauth_consumer_key => $client_id,
@@ -55,10 +56,12 @@ sub authorize_request {
 		%oauth_params = (%oauth_params, %query_oauth_params);
 		$req->remove_query_params(keys %query_oauth_params);
 	}
-	my %body_oauth_params = pairgrep { $a =~ m/^oauth_/ } @{$req->body_pairs};
-	if (%body_oauth_params) {
-		%oauth_params = (%oauth_params, %body_oauth_params);
-		$req->remove_body_params(keys %body_oauth_params);
+	if ($req->body_is_form) {
+		my %body_oauth_params = pairgrep { $a =~ m/^oauth_/ } @{$req->body_pairs};
+		if (%body_oauth_params) {
+			%oauth_params = (%oauth_params, %body_oauth_params);
+			$req->remove_body_params(keys %body_oauth_params);
+		}
 	}
 	
 	# This parameter is not allowed when creating the signature
@@ -79,13 +82,15 @@ sub _nonce {
 
 sub _signature_plaintext {
 	my ($self, $req, $oauth_params, $client_secret, $token_secret) = @_;
-	return uri_escape_utf8($client_secret) . '&' . uri_escape_utf8($token_secret // '');
+	$token_secret = '' unless defined $token_secret;
+	return uri_escape_utf8($client_secret) . '&' . uri_escape_utf8($token_secret);
 }
 
 sub _signature_hmac_sha1 {
 	my ($self, $req, $oauth_params, $client_secret, $token_secret) = @_;
+	$token_secret = '' unless defined $token_secret;
 	my $base_str = _signature_base_string($req, $oauth_params);
-	my $signing_key = uri_escape_utf8($client_secret) . '&' . uri_escape_utf8($token_secret // '');
+	my $signing_key = uri_escape_utf8($client_secret) . '&' . uri_escape_utf8($token_secret);
 	return encode_base64(hmac_sha1($base_str, $signing_key), '');
 }
 
@@ -98,7 +103,8 @@ sub _signature_rsa_sha1 {
 sub _signature_base_string {
 	my ($req, $oauth_params) = @_;
 	
-	my @encoded_params = map { uri_escape_utf8($_) } (@{$req->query_pairs}, @{$req->body_pairs}, %$oauth_params);
+	my @encoded_params = map { uri_escape_utf8($_) } (@{$req->query_pairs}, %$oauth_params);
+	push @encoded_params, map { uri_escape_utf8($_) } @{$req->body_pairs} if $req->body_is_form;
 	my @sorted_pairs = sort { ($a->[0] cmp $b->[0]) or ($a->[1] cmp $b->[1]) } pairs @encoded_params;
 	my $params_str = join '&', map { $_->[0] . '=' . $_->[1] } @sorted_pairs;
 	

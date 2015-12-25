@@ -16,7 +16,14 @@ sub body {
 	return $self;
 }
 
-sub set_header { $_[0]->headers->{$_[1]} = $_[2]; $_[0] }
+sub body_is_form {
+	my $self = shift;
+	my $content_type = $self->headers->{'content-type'} || '';
+	return 0 unless $content_type =~ m!application/x-www-form-urlencoded!i;
+	return 1;
+}
+
+sub set_header { $_[0]->headers->{lc $_[1]} = $_[2]; $_[0] }
 
 1;
 

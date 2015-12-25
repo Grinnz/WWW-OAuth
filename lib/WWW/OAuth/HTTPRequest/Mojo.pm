@@ -25,6 +25,14 @@ sub body {
 	return $self;
 }
 
+sub body_is_form {
+	my $self = shift;
+	return 0 if $self->request->content->is_multipart;
+	my $content_type = $self->request->headers->content_type || '';
+	return 0 unless $content_type =~ m!application/x-www-form-urlencoded!i;
+	return 1;
+}
+
 sub query_pairs { shift->request->query_params->pairs }
 
 sub remove_query_params {

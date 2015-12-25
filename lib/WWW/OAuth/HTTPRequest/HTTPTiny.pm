@@ -1,5 +1,7 @@
 package WWW::OAuth::HTTPRequest::HTTPTiny;
 
+use strict;
+use warnings;
 use Class::Tiny::Chained 'method', 'url', 'content', { headers => sub { {} } };
 
 use Role::Tiny::With;

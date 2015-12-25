@@ -1,6 +1,9 @@
 package WWW::OAuth::HTTPRequest::HTTPRequest;
 
+use strict;
+use warnings;
 use Class::Tiny::Chained 'request';
+
 use URI::QueryParam;
 
 use Role::Tiny::With;

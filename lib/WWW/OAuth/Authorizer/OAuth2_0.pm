@@ -1,6 +1,9 @@
 package WWW::OAuth::Authorizer::OAuth2_0;
 
+use strict;
+use warnings;
 use Class::Tiny::Chained;
+
 use Role::Tiny::With;
 with 'WWW::OAuth::Role::Authorizer';
 

@@ -1,5 +1,7 @@
 package WWW::OAuth::HTTPRequest::Mojo;
 
+use strict;
+use warnings;
 use Class::Tiny::Chained 'request';
 
 use Role::Tiny::With;

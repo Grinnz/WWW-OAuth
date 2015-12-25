@@ -1,5 +1,7 @@
 package WWW::OAuth::Authorizer::OAuth1_0;
 
+use strict;
+use warnings;
 use Class::Tiny::Chained qw(client_id client_secret token token_secret), {
 	signature_method => 'HMAC-SHA1',
 };

@@ -47,6 +47,11 @@ sub authorize_request {
 	$oauth_params{oauth_token} = $token if defined $token;
 	
 	# All oauth parameters should be moved to the header
+	my %query_oauth_params = pairgrep { $a =~ m/^oauth_/ } @{$req->query_pairs};
+	if (%query_oauth_params) {
+		%oauth_params = (%oauth_params, %query_oauth_params);
+		$req->remove_query_params(keys %query_oauth_params);
+	}
 	my %body_oauth_params = pairgrep { $a =~ m/^oauth_/ } @{$req->body_pairs};
 	if (%body_oauth_params) {
 		%oauth_params = (%oauth_params, %body_oauth_params);

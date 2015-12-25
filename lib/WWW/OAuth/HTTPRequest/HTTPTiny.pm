@@ -18,7 +18,7 @@ sub body {
 
 sub body_is_form {
 	my $self = shift;
-	my $content_type = $self->headers->{'content-type'} || '';
+	my $content_type = $self->headers->{'content-type'} || $self->headers->{'Content-Type'} || '';
 	return 0 unless $content_type =~ m!application/x-www-form-urlencoded!i;
 	return 1;
 }

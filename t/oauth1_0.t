@@ -33,7 +33,7 @@ $auth->authorize_request($oauth_request);
 is $oauth_request->body, '', 'oauth parameter removed from body';
 is $oauth_request->url, $oauth_request_url, 'request url unchanged';
 
-my $auth_header = $oauth_request->headers->{authorization} // '';
+my $auth_header = $oauth_request->headers->{authorization} || '';
 like $auth_header, qr/oauth_consumer_key/, 'oauth_consumer_key is set';
 like $auth_header, qr/oauth_nonce/, 'oauth_nonce is set';
 like $auth_header, qr/oauth_signature_method/, 'oauth_signature_method is set';

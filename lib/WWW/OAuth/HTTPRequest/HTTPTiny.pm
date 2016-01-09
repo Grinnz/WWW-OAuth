@@ -3,9 +3,10 @@ package WWW::OAuth::HTTPRequest::HTTPTiny;
 use strict;
 use warnings;
 use Class::Tiny::Chained 'method', 'url', 'content', { headers => sub { {} } };
+use HTTP::Tiny;
 
 use Role::Tiny::With;
-with 'WWW::OAuth::Role::HTTPTiny';
+with 'WWW::OAuth::Role::HTTPRequest';
 
 our $VERSION = '0.001';
 
@@ -24,6 +25,13 @@ sub body_is_form {
 }
 
 sub set_header { $_[0]->headers->{lc $_[1]} = $_[2]; $_[0] }
+
+sub set_form {
+	my ($self, $form) = @_;
+	$self->content(HTTP::Tiny->new->www_form_urlencode($form));
+	$self->set_header('Content-Type' => 'application/x-www-form-urlencoded');
+	return $self;
+}
 
 1;
 

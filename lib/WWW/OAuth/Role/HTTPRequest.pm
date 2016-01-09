@@ -32,7 +32,7 @@ sub remove_body_params {
 	my $dummy = URI->new;
 	$dummy->query($self->body);
 	$dummy->query_param_delete(encode 'UTF-8', $_) for @_;
-	$self->body($dummy->query);
+	$self->body($dummy->query // '');
 	return $self;
 }
 

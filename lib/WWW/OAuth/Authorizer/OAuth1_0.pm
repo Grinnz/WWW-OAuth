@@ -28,8 +28,8 @@ my %signature_methods = (
 sub authorize_request {
 	my ($self, $req) = @_;
 	croak 'No request to authorize' unless defined $req;
-	croak 'Request does not perform the role WWW::OAuth::HTTPRequest'
-		unless blessed $req and $req->DOES('WWW::OAuth::HTTPRequest');
+	croak 'Request does not perform the role WWW::OAuth::Role::HTTPRequest'
+		unless blessed $req and $req->DOES('WWW::OAuth::Role::HTTPRequest');
 	
 	my ($client_id, $client_secret, $token, $token_secret, $signature_method) =
 		($self->client_id, $self->client_secret, $self->token, $self->token_secret, $self->signature_method);
@@ -70,7 +70,7 @@ sub authorize_request {
 	$oauth_params{oauth_signature} = $self->$sign($req, \%oauth_params, $client_secret, $token_secret);
 	
 	my $auth_str = join ', ', map { $_ . '="' . uri_escape_utf8($oauth_params{$_}) . '"' } sort keys %oauth_params;
-	$req->set_header("OAuth $auth_str");
+	$req->set_header(Authorization => "OAuth $auth_str");
 	return $self;
 }
 

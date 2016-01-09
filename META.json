@@ -1,0 +1,107 @@
+{
+   "abstract" : "Module abstract",
+   "author" : [
+      "Dan Book <dbook@cpan.org>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Dist::Zilla version 5.043, CPAN::Meta::Converter version 2.150005",
+   "license" : [
+      "artistic_2"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : 2
+   },
+   "name" : "WWW-OAuth",
+   "no_index" : {
+      "directory" : [
+         "eg",
+         "examples",
+         "inc",
+         "share",
+         "t",
+         "xt"
+      ]
+   },
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Carp" : "0",
+            "Class::Tiny::Chained" : "0",
+            "Digest::SHA" : "0",
+            "Encode" : "0",
+            "HTTP::Tiny" : "0.014",
+            "List::Util" : "1.29",
+            "MIME::Base64" : "0",
+            "Role::Tiny" : "2.000000",
+            "Scalar::Util" : "0",
+            "URI" : "0",
+            "URI::Escape" : "0",
+            "URI::QueryParam" : "0",
+            "perl" : "5.008001"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Data::Section::Simple" : "0",
+            "Test::More" : "0.88"
+         }
+      }
+   },
+   "provides" : {
+      "WWW::OAuth" : {
+         "file" : "lib/WWW/OAuth.pm",
+         "version" : "0.001"
+      },
+      "WWW::OAuth::Authorizer::OAuth1_0" : {
+         "file" : "lib/WWW/OAuth/Authorizer/OAuth1_0.pm",
+         "version" : "0.001"
+      },
+      "WWW::OAuth::Authorizer::OAuth2_0" : {
+         "file" : "lib/WWW/OAuth/Authorizer/OAuth2_0.pm",
+         "version" : "0.001"
+      },
+      "WWW::OAuth::HTTPRequest::HTTPRequest" : {
+         "file" : "lib/WWW/OAuth/HTTPRequest/HTTPRequest.pm",
+         "version" : "0.001"
+      },
+      "WWW::OAuth::HTTPRequest::HTTPTiny" : {
+         "file" : "lib/WWW/OAuth/HTTPRequest/HTTPTiny.pm",
+         "version" : "0.001"
+      },
+      "WWW::OAuth::HTTPRequest::Mojo" : {
+         "file" : "lib/WWW/OAuth/HTTPRequest/Mojo.pm",
+         "version" : "0.001"
+      },
+      "WWW::OAuth::Role::Authorizer" : {
+         "file" : "lib/WWW/OAuth/Role/Authorizer.pm",
+         "version" : "0.001"
+      },
+      "WWW::OAuth::Role::HTTPRequest" : {
+         "file" : "lib/WWW/OAuth/Role/HTTPRequest.pm",
+         "version" : "0.001"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/Grinnz/WWW-OAuth/issues"
+      },
+      "homepage" : "https://github.com/Grinnz/WWW-OAuth",
+      "repository" : {
+         "type" : "git",
+         "url" : "https://github.com/Grinnz/WWW-OAuth.git",
+         "web" : "https://github.com/Grinnz/WWW-OAuth"
+      }
+   },
+   "version" : "0.001",
+   "x_contributors" : [
+      "Dan Book <grinnz@grinnz.com>"
+   ]
+}
+

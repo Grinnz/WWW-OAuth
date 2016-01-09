@@ -33,6 +33,11 @@ sub set_form {
 	return $self;
 }
 
+sub make_request {
+	my ($self, $ua) = @_;
+	return $ua->request($self->method, $self->url, { headers => $self->headers, content => $self->content });
+}
+
 1;
 
 =head1 NAME

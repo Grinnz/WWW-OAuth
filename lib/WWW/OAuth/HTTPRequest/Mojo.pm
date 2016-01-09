@@ -54,6 +54,12 @@ sub remove_body_params {
 
 sub set_header { $_[0]->request->headers->header(@_[1,2]); $_[0] }
 
+sub make_request {
+	my ($self, $ua, $cb) = @_;
+	my $tx = $ua->build_tx($self->method, $self->url, $self->request->headers->to_hash, $self->body);
+	return $ua->start($tx, $cb);
+}
+
 1;
 
 =head1 NAME

@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Class::Tiny::Chained 'request';
 
+use Carp 'croak';
 use URI::QueryParam;
 
 use Role::Tiny::With;
@@ -46,6 +47,17 @@ sub remove_query_params {
 }
 
 sub set_header { $_[0]->request->header(@_[1,2]); $_[0] }
+
+sub make_request {
+	my ($self, $ua) = @_;
+	if ($ua->isa('LWP::UserAgent')) {
+		return $ua->request($self->request);
+	} elsif ($ua->isa('Net::Async::HTTP')) {
+		return $ua->do_request(request => $self->request);
+	} else {
+		croak "Unknown user-agent object $ua";
+	}
+}
 
 1;
 

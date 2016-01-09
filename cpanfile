@@ -4,6 +4,7 @@ requires 'Class::Tiny::Chained';
 requires 'Digest::SHA';
 requires 'Encode';
 requires 'HTTP::Tiny' => '0.014';
+requires 'JSON::Tiny' => '0.41';
 requires 'List::Util' => '1.29';
 requires 'MIME::Base64';
 requires 'Role::Tiny' => '2.000000';

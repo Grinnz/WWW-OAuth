@@ -67,3 +67,5 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =head1 SEE ALSO
+
+L<HTTP::Request>, L<Mojo::Message::Request>

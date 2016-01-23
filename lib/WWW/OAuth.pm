@@ -235,15 +235,15 @@ L<Crypt::OpenSSL::RSA>. Defaults to C<HMAC-SHA1>.
 
 =head2 request_from
 
- my $container = $oauth->request_from($http_request);
- my $container = $oauth->request_from(HTTPTiny => { method => 'GET', url => $url });
+ my $container = WWW::OAuth->request_from($http_request);
+ my $container = WWW::OAuth->request_from(HTTPTiny => { method => 'GET', url => $url });
 
-Constructs an HTTP request container performing the L<WWW::OAuth::HTTPRequest>
-role. The input can either be a recognized request object, or a container class
-name followed by a hashref of constructor arguments. The class name will be
-appended to C<WWW::OAuth::HTTPRequest::> if it does not contain C<::>.
-Currently, L<HTTP::Request> and L<Mojo::Message::Request> objects are
-recognized.
+Can be called as a class or object method. Constructs an HTTP request container
+performing the L<WWW::OAuth::HTTPRequest> role. The input can either be a
+recognized request object, or a container class name followed by a hashref of
+constructor arguments. The class name will be appended to
+C<WWW::OAuth::HTTPRequest::> if it does not contain C<::>. Currently,
+L<HTTP::Request> and L<Mojo::Message::Request> objects are recognized.
 
 =head2 authenticate
 

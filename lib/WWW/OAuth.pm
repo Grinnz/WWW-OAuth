@@ -183,10 +183,100 @@ WWW::OAuth - Portable OAuth 1.0 authentication
 
 L<WWW::OAuth> implements OAuth 1.0 request authentication according to
 L<RFC 5849|http://tools.ietf.org/html/rfc5849>. It does not implement the user
-agent requests needed for the complete OAuth 1.0 authorization flow, only
-prepares and signs requests, the rest is up to your application. It can
+agent requests needed for the complete OAuth 1.0 authorization flow; it only
+prepares and signs requests, leaving the rest up to your application. It can
 authenticate requests for L<LWP::UserAgent>, L<Mojo::UserAgent>, L<HTTP::Tiny>,
 and can be extended to operate on other types of requests.
+
+=head1 ATTRIBUTES
+
+=head2 client_id
+
+ my $client_id = $oauth->client_id;
+ $oauth        = $oauth->client_id($client_id);
+
+Client ID used to identify application (sometimes called an API key or consumer
+key). Required for all requests.
+
+=head2 client_secret
+
+ my $client_secret = $oauth->client_secret;
+ $oauth            = $oauth->client_secret($client_secret);
+
+Client secret used to authenticate application (sometimes called an API secret
+or consumer secret). Required for all requests.
+
+=head2 token
+
+ my $token = $oauth->token;
+ $oauth    = $oauth->token($token);
+
+Request or access token used to identify resource owner. Leave empty for
+temporary credentials requests (request token requests).
+
+=head2 token_secret
+
+ my $token_secret = $oauth->token_secret;
+ $oauth           = $oauth->token_secret($token_secret);
+
+Request or access token secret used to authenticate on behalf of resource
+owner. Leave empty for temporary credentials requests (request token requests).
+
+=head2 signature_method
+
+ my $method = $oauth->signature_method;
+ $oauth     = $oauth->signature_method($method);
+
+Signature method, can be C<PLAINTEXT>, C<HMAC-SHA1>, or an object that
+implements the C<RSA-SHA1> method with a C<sign> method like
+L<Crypt::OpenSSL::RSA>. Defaults to C<HMAC-SHA1>.
+
+=head1 METHODS
+
+=head2 request_from
+
+ my $container = $oauth->request_from($http_request);
+ my $container = $oauth->request_from(HTTPTiny => { method => 'GET', url => $url });
+
+Constructs an HTTP request container performing the L<WWW::OAuth::HTTPRequest>
+role. The input can either be a recognized request object, or a container class
+name followed by a hashref of constructor arguments. The class name will be
+appended to C<WWW::OAuth::HTTPRequest::> if it does not contain C<::>.
+Currently, L<HTTP::Request> and L<Mojo::Message::Request> objects are
+recognized.
+
+=head2 authenticate
+
+ $container = $oauth->authenticate($container);
+ my $container = $oauth->authenticate($http_request);
+ my $container = $oauth->authenticate(HTTPTiny => { method => 'GET', url => $url });
+
+Wraps the HTTP request in a container with L</"request_from">, then updates the
+request URL, body, and headers as needed to construct and sign the request for
+OAuth 1.0. Returns the container object.
+
+=head1 HTTP REQUEST CONTAINERS
+
+Request containers provide a unified interface for L</"authenticate"> to parse
+and update HTTP requests. They must perform the L<Role::Tiny> role
+L<WWW::OAuth::HTTPRequest>. Custom container classes can be instantiated
+directly or via L</"request_from">.
+
+=head2 HTTPRequest
+
+L<WWW::OAuth::HTTPRequest::HTTPRequest> wraps a L<HTTP::Request> object, which
+is compatible with several user agents including L<LWP::UserAgent>,
+L<HTTP::Thin>, and L<Net::Async::HTTP>.
+
+=head2 HTTPTiny
+
+L<WWW::OAuth::HTTPRequest::HTTPTiny> contains the request attributes directly,
+as L<HTTP::Tiny> does not use request objects.
+
+=head2 Mojo
+
+L<WWW::OAuth::HTTPRequest::Mojo> wraps a L<Mojo::Message::Request> object,
+which is used by L<Mojo::UserAgent> via L<Mojo::Transaction>.
 
 =head1 BUGS
 

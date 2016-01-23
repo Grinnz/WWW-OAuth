@@ -42,11 +42,13 @@ sub remove_body_params {
 
 =head1 NAME
 
-WWW::OAuth::HTTPRequest - Module abstract
+WWW::OAuth::HTTPRequest - HTTP Request container role
 
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
+
+=head1 METHODS
 
 =head1 BUGS
 

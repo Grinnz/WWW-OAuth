@@ -2,11 +2,47 @@
 
 =head1 NAME
 
-WWW::OAuth - Module abstract
+WWW::OAuth - Portable OAuth 1.0 authentication
 
 =head1 SYNOPSIS
 
+ use WWW::OAuth;
+ 
+ my $oauth = WWW::OAuth->new(
+   client_id => $client_id,
+   client_secret => $client_secret,
+   token => $token,
+   token_secret => $token_secret,
+ );
+ 
+ # HTTP::Tiny
+ use HTTP::Tiny;
+ my $ua = HTTP::Tiny->new;
+ my $req = $oauth->authenticate(HTTPTiny => { method => 'GET', url => $url });
+ $ua->request($req->method, $req->url, $req->options);
+
+ # HTTP::Request
+ use HTTP::Request::Common;
+ use LWP::UserAgent;
+ my $ua = LWP::UserAgent->new;
+ my $req = $oauth->authenticate(GET $url);
+ my $res = $ua->request($req->request);
+ 
+ # Mojo::Message::Request
+ use Mojo::UserAgent;
+ my $ua = Mojo::UserAgent->new;
+ my $tx = $ua->build_tx(get => $url);
+ $oauth->authenticate($tx->req);
+ $tx = $ua->start($tx);
+ 
 =head1 DESCRIPTION
+
+L<WWW::OAuth> implements OAuth 1.0 request authentication according to
+L<RFC 5849|http://tools.ietf.org/html/rfc5849>. It does not implement the user
+agent requests needed for the complete OAuth 1.0 authorization flow, only
+prepares and signs requests, the rest is up to your application. It can
+authenticate requests for L<LWP::UserAgent>, L<Mojo::UserAgent>, L<HTTP::Tiny>,
+and can be extended to operate on other types of requests.
 
 =head1 BUGS
 
@@ -25,5 +61,7 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =head1 SEE ALSO
+
+L<Net::OAuth>, L<Mojolicious::Plugin::OAuth2>
 
 =cut

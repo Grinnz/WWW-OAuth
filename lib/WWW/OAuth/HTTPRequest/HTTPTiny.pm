@@ -6,7 +6,7 @@ use Class::Tiny::Chained 'method', 'url', 'content', { headers => sub { {} } };
 use HTTP::Tiny;
 
 use Role::Tiny::With;
-with 'WWW::OAuth::Role::HTTPRequest';
+with 'WWW::OAuth::HTTPRequest';
 
 our $VERSION = '0.001';
 
@@ -33,9 +33,14 @@ sub set_form {
 	return $self;
 }
 
+sub options {
+	my $self = shift;
+	return { headers => $self->headers, content => $self->content };
+}
+
 sub make_request {
 	my ($self, $ua) = @_;
-	return $ua->request($self->method, $self->url, { headers => $self->headers, content => $self->content });
+	return $ua->request($self->method, $self->url, $self->options);
 }
 
 1;

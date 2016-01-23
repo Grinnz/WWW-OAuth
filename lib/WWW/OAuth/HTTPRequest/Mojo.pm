@@ -5,7 +5,7 @@ use warnings;
 use Class::Tiny::Chained 'request';
 
 use Role::Tiny::With;
-with 'WWW::OAuth::Role::HTTPRequest';
+with 'WWW::OAuth::HTTPRequest';
 
 our $VERSION = '0.001';
 

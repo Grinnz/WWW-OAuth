@@ -6,12 +6,12 @@ use Data::Section::Simple 'get_data_section';
 use Digest::SHA 'hmac_sha1';
 use Encode 'decode';
 use HTTP::Tiny;
-use JSON::Tiny 'decode_json';
+use JSON::PP 'decode_json';
 use MIME::Base64 'encode_base64';
 use URI;
 use URI::QueryParam;
 use URI::Escape 'uri_escape_utf8', 'uri_unescape';
-use WWW::OAuth::Authorizer::OAuth1_0;
+use WWW::OAuth;
 use WWW::OAuth::HTTPRequest::HTTPTiny;
 
 my $api_key = $ENV{TWITTER_API_KEY};
@@ -40,8 +40,8 @@ my $oauth_request = _request(POST => $oauth_request_url, { oauth_callback => 'oo
 ok $oauth_request->body_is_form, 'OAuth request contains form body';
 is $oauth_request->body, 'oauth_callback=oob', 'oauth parameter set in body';
 
-my $auth = WWW::OAuth::Authorizer::OAuth1_0->new(client_id => $api_key, client_secret => $api_secret);
-$auth->authorize_request($oauth_request);
+my $auth = WWW::OAuth->new(client_id => $api_key, client_secret => $api_secret);
+$auth->authenticate($oauth_request);
 is $oauth_request->body, '', 'oauth parameter removed from body';
 is $oauth_request->url, $oauth_request_url, 'request url unchanged';
 
@@ -80,7 +80,7 @@ ok !$verify_request->body_is_form, 'OAuth request does not contain form body';
 
 $auth->token($token);
 $auth->token_secret($token_secret);
-$auth->authorize_request($verify_request);
+$auth->authenticate($verify_request);
 
 $oauth_params = _parse_oauth_header($verify_request->headers->{authorization} || '');
 is $oauth_params->{oauth_consumer_key}, $api_key, 'oauth_consumer_key is set to API key';

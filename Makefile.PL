@@ -7,7 +7,7 @@ use 5.008001;
 use ExtUtils::MakeMaker;
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "Module abstract",
+  "ABSTRACT" => "Portable OAuth 1.0 authentication",
   "AUTHOR" => "Dan Book <dbook\@cpan.org>",
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => 0
@@ -22,7 +22,6 @@ my %WriteMakefileArgs = (
     "Digest::SHA" => 0,
     "Encode" => 0,
     "HTTP::Tiny" => "0.014",
-    "JSON::Tiny" => "0.41",
     "List::Util" => "1.29",
     "MIME::Base64" => 0,
     "Role::Tiny" => "2.000000",
@@ -33,6 +32,7 @@ my %WriteMakefileArgs = (
   },
   "TEST_REQUIRES" => {
     "Data::Section::Simple" => 0,
+    "JSON::PP" => 0,
     "Test::More" => "0.88"
   },
   "VERSION" => "0.001",
@@ -49,7 +49,7 @@ my %FallbackPrereqs = (
   "Digest::SHA" => 0,
   "Encode" => 0,
   "HTTP::Tiny" => "0.014",
-  "JSON::Tiny" => "0.41",
+  "JSON::PP" => 0,
   "List::Util" => "1.29",
   "MIME::Base64" => 0,
   "Role::Tiny" => "2.000000",

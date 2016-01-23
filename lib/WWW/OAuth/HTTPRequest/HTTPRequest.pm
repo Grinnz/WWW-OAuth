@@ -8,7 +8,7 @@ use Carp 'croak';
 use URI::QueryParam;
 
 use Role::Tiny::With;
-with 'WWW::OAuth::Role::HTTPRequest';
+with 'WWW::OAuth::HTTPRequest';
 
 our $VERSION = '0.001';
 

@@ -4,6 +4,9 @@ use strict;
 use warnings;
 use Class::Tiny::Chained 'request';
 
+use Carp 'croak';
+use Scalar::Util 'blessed';
+
 use Role::Tiny::With;
 with 'WWW::OAuth::HTTPRequest';
 
@@ -54,8 +57,9 @@ sub remove_body_params {
 
 sub set_header { $_[0]->request->headers->header(@_[1,2]); $_[0] }
 
-sub make_request {
+sub request_with {
 	my ($self, $ua, $cb) = @_;
+	croak 'Unknown user-agent object' unless blessed $ua and $ua->isa('Mojo::UserAgent');
 	my $tx = $ua->build_tx($self->method, $self->url, $self->request->headers->to_hash, $self->body);
 	return $ua->start($tx, $cb);
 }

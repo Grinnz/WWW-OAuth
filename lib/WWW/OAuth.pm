@@ -10,11 +10,48 @@ use Carp 'croak';
 use Digest::SHA 'hmac_sha1';
 use List::Util 'pairs', 'pairgrep';
 use MIME::Base64 'encode_base64';
+use Module::Runtime 'require_module';
 use Scalar::Util 'blessed';
 use URI;
 use URI::Escape 'uri_escape_utf8';
 
 our $VERSION = '0.001';
+
+sub request_from {
+	my $self = shift;
+	
+	my ($class, %args);
+	if (blessed $_[0]) { # Request object
+		my $req = shift;
+		if ($req->DOES('WWW::OAuth::HTTPRequest')) { # already in container
+			return $req;
+		} elsif ($req->isa('HTTP::Request')) {
+			$class = 'HTTPRequest';
+		} elsif ($req->isa('Mojo::Message')) {
+			$class = 'Mojo';
+		} else {
+			$class = blessed $req;
+			$class =~ s/:://g;
+		}
+		%args = (request => $req);
+	} elsif (ref $_[0]) { # Hashref for HTTP::Tiny
+		my $href = shift;
+		$class = 'HTTPTiny';
+		%args = %$href;
+	} else { # Request class and args hashref
+		($class, my $href) = @_;
+		%args = %$href;
+	}
+	
+	croak 'No request to authenticate' unless defined $class and %args;
+	
+	$class = "WWW::OAuth::HTTPRequest::$class" unless $class =~ /::/;
+	require_module $class;
+	croak "Class $class does not perform the role WWW::OAuth::HTTPRequest"
+		unless $class->DOES('WWW::OAuth::HTTPRequest');
+	
+	return $class->new(%args);
+}
 
 my %signature_methods = (
 	'PLAINTEXT' => '_signature_plaintext',
@@ -23,10 +60,8 @@ my %signature_methods = (
 );
 
 sub authenticate {
-	my ($self, $req) = @_;
-	croak 'No request to authenticate' unless defined $req;
-	croak 'Request does not perform the role WWW::OAuth::HTTPRequest'
-		unless blessed $req and $req->DOES('WWW::OAuth::HTTPRequest');
+	my $self = shift;
+	my $req = $self->request_from(@_);
 	
 	my ($client_id, $client_secret, $token, $token_secret, $signature_method) =
 		($self->client_id, $self->client_secret, $self->token, $self->token_secret, $self->signature_method);
@@ -131,23 +166,18 @@ WWW::OAuth - Portable OAuth 1.0 authentication
  
  # HTTP::Tiny
  use HTTP::Tiny;
- my $ua = HTTP::Tiny->new;
- my $req = $oauth->authenticate(HTTPTiny => { method => 'GET', url => $url });
- $ua->request($req->method, $req->url, $req->options);
-
+ my $res = $oauth->authenticate(HTTPTiny => { method => 'GET', url => $url })
+   ->request_with(HTTP::Tiny->new);
+ 
  # HTTP::Request
  use HTTP::Request::Common;
  use LWP::UserAgent;
- my $ua = LWP::UserAgent->new;
- my $req = $oauth->authenticate(GET $url);
- my $res = $ua->request($req->request);
+ my $res = $oauth->authenticate(GET $url)->request_with(LWP::UserAgent->new);
  
  # Mojo::Message::Request
  use Mojo::UserAgent;
- my $ua = Mojo::UserAgent->new;
  my $tx = $ua->build_tx(get => $url);
- $oauth->authenticate($tx->req);
- $tx = $ua->start($tx);
+ $tx = $oauth->authenticate($tx->req)->request_with(Mojo::UserAgent->new);
  
 =head1 DESCRIPTION
 

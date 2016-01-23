@@ -3,7 +3,10 @@ package WWW::OAuth::HTTPRequest::HTTPTiny;
 use strict;
 use warnings;
 use Class::Tiny::Chained 'method', 'url', 'content', { headers => sub { {} } };
-use HTTP::Tiny;
+
+use Carp 'croak';
+use List::Util 'first';
+use Scalar::Util 'blessed';
 
 use Role::Tiny::With;
 with 'WWW::OAuth::HTTPRequest';
@@ -19,27 +22,23 @@ sub body {
 
 sub body_is_form {
 	my $self = shift;
-	my $content_type = $self->headers->{'content-type'} || $self->headers->{'Content-Type'} || '';
-	return 0 unless $content_type =~ m!application/x-www-form-urlencoded!i;
+	my $content_type_key = first { lc $_ eq 'content-type' } keys %{$self->headers};
+	return 0 unless defined $content_type_key;
+	my $content_type = $self->headers->{$content_type_key};
+	return 0 unless defined $content_type and $content_type =~ m!application/x-www-form-urlencoded!i;
 	return 1;
 }
 
 sub set_header { $_[0]->headers->{lc $_[1]} = $_[2]; $_[0] }
-
-sub set_form {
-	my ($self, $form) = @_;
-	$self->content(HTTP::Tiny->new->www_form_urlencode($form));
-	$self->set_header('Content-Type' => 'application/x-www-form-urlencoded');
-	return $self;
-}
 
 sub options {
 	my $self = shift;
 	return { headers => $self->headers, content => $self->content };
 }
 
-sub make_request {
+sub request_with {
 	my ($self, $ua) = @_;
+	croak 'Unknown user-agent object' unless blessed $ua and $ua->isa('HTTP::Tiny');
 	return $ua->request($self->method, $self->url, $self->options);
 }
 

@@ -108,17 +108,18 @@ ok defined($response_data->{id_str}), 'Twitter ID returned in response';
 
 sub _request {
 	my ($method, $url, $params) = @_;
-	my $req = WWW::OAuth::HTTPRequest::HTTPTiny->new(method => $method, url => $url);
+	my %req = (method => $method, url => $url);
 	if (defined $params) {
 		if ($method eq 'GET' or $method eq 'HEAD') {
 			my $uri = URI->new($url);
 			$uri->query_form_hash($params);
-			$req->url($uri->as_string);
+			$req{url} = $uri->as_string;
 		} else {
-			$req->set_form($params);
+			$req{content} = HTTP::Tiny->new->www_form_urlencode($params);
+			$req{headers}{'content-type'} = 'application/x-www-form-urlencoded';
 		}
 	}
-	return $req;
+	return WWW::OAuth::HTTPRequest::HTTPTiny->new(%req);
 }
 
 sub _parse_oauth_header {

@@ -17,23 +17,18 @@ WWW::OAuth - Portable OAuth 1.0 authentication
  
  # HTTP::Tiny
  use HTTP::Tiny;
- my $ua = HTTP::Tiny->new;
- my $req = $oauth->authenticate(HTTPTiny => { method => 'GET', url => $url });
- $ua->request($req->method, $req->url, $req->options);
-
+ my $res = $oauth->authenticate(HTTPTiny => { method => 'GET', url => $url })
+   ->request_with(HTTP::Tiny->new);
+ 
  # HTTP::Request
  use HTTP::Request::Common;
  use LWP::UserAgent;
- my $ua = LWP::UserAgent->new;
- my $req = $oauth->authenticate(GET $url);
- my $res = $ua->request($req->request);
+ my $res = $oauth->authenticate(GET $url)->request_with(LWP::UserAgent->new);
  
  # Mojo::Message::Request
  use Mojo::UserAgent;
- my $ua = Mojo::UserAgent->new;
  my $tx = $ua->build_tx(get => $url);
- $oauth->authenticate($tx->req);
- $tx = $ua->start($tx);
+ $tx = $oauth->authenticate($tx->req)->request_with(Mojo::UserAgent->new);
  
 =head1 DESCRIPTION
 

@@ -11,6 +11,7 @@ use Digest::SHA 'hmac_sha1';
 use List::Util 'pairs', 'pairgrep';
 use MIME::Base64 'encode_base64';
 use Module::Runtime 'require_module';
+use Role::Tiny ();
 use Scalar::Util 'blessed';
 use URI;
 use URI::Escape 'uri_escape_utf8';
@@ -23,7 +24,7 @@ sub request_from {
 	my ($class, %args);
 	if (blessed $_[0]) { # Request object
 		my $req = shift;
-		if ($req->DOES('WWW::OAuth::HTTPRequest')) { # already in container
+		if (Role::Tiny::does_role($req, 'WWW::OAuth::HTTPRequest')) { # already in container
 			return $req;
 		} elsif ($req->isa('HTTP::Request')) {
 			$class = 'HTTPRequest';
@@ -48,7 +49,7 @@ sub request_from {
 	$class = "WWW::OAuth::HTTPRequest::$class" unless $class =~ /::/;
 	require_module $class;
 	croak "Class $class does not perform the role WWW::OAuth::HTTPRequest"
-		unless $class->DOES('WWW::OAuth::HTTPRequest');
+		unless Role::Tiny::does_role($class, 'WWW::OAuth::HTTPRequest');
 	
 	return $class->new(%args);
 }

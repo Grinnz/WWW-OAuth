@@ -60,20 +60,20 @@
          "file" : "lib/WWW/OAuth.pm",
          "version" : "0.001"
       },
-      "WWW::OAuth::HTTPRequest" : {
-         "file" : "lib/WWW/OAuth/HTTPRequest.pm",
+      "WWW::OAuth::Request" : {
+         "file" : "lib/WWW/OAuth/Request.pm",
          "version" : "0.001"
       },
-      "WWW::OAuth::HTTPRequest::HTTPRequest" : {
-         "file" : "lib/WWW/OAuth/HTTPRequest/HTTPRequest.pm",
+      "WWW::OAuth::Request::HTTPRequest" : {
+         "file" : "lib/WWW/OAuth/Request/HTTPRequest.pm",
          "version" : "0.001"
       },
-      "WWW::OAuth::HTTPRequest::HTTPTiny" : {
-         "file" : "lib/WWW/OAuth/HTTPRequest/HTTPTiny.pm",
+      "WWW::OAuth::Request::HTTPTiny" : {
+         "file" : "lib/WWW/OAuth/Request/HTTPTiny.pm",
          "version" : "0.001"
       },
-      "WWW::OAuth::HTTPRequest::Mojo" : {
-         "file" : "lib/WWW/OAuth/HTTPRequest/Mojo.pm",
+      "WWW::OAuth::Request::Mojo" : {
+         "file" : "lib/WWW/OAuth/Request/Mojo.pm",
          "version" : "0.001"
       }
    },

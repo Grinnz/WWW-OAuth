@@ -24,7 +24,7 @@ sub request_from {
 	my ($class, %args);
 	if (blessed $_[0]) { # Request object
 		my $req = shift;
-		if (Role::Tiny::does_role($req, 'WWW::OAuth::HTTPRequest')) { # already in container
+		if (Role::Tiny::does_role($req, 'WWW::OAuth::Request')) { # already in container
 			return $req;
 		} elsif ($req->isa('HTTP::Request')) {
 			$class = 'HTTPRequest';
@@ -46,10 +46,10 @@ sub request_from {
 	
 	croak 'No request to authenticate' unless defined $class and %args;
 	
-	$class = "WWW::OAuth::HTTPRequest::$class" unless $class =~ /::/;
+	$class = "WWW::OAuth::Request::$class" unless $class =~ /::/;
 	require_module $class;
-	croak "Class $class does not perform the role WWW::OAuth::HTTPRequest"
-		unless Role::Tiny::does_role($class, 'WWW::OAuth::HTTPRequest');
+	croak "Class $class does not perform the role WWW::OAuth::Request"
+		unless Role::Tiny::does_role($class, 'WWW::OAuth::Request');
 	
 	return $class->new(%args);
 }
@@ -240,10 +240,10 @@ L<Crypt::OpenSSL::RSA>. Defaults to C<HMAC-SHA1>.
  my $container = WWW::OAuth->request_from(HTTPTiny => { method => 'GET', url => $url });
 
 Can be called as a class or object method. Constructs an HTTP request container
-performing the L<WWW::OAuth::HTTPRequest> role. The input can either be a
+performing the L<WWW::OAuth::Request> role. The input can either be a
 recognized request object, or a container class name followed by a hashref of
 constructor arguments. The class name will be appended to
-C<WWW::OAuth::HTTPRequest::> if it does not contain C<::>. Currently,
+C<WWW::OAuth::Request::> if it does not contain C<::>. Currently,
 L<HTTP::Request> and L<Mojo::Message::Request> objects are recognized.
 
 =head2 authenticate
@@ -260,23 +260,23 @@ OAuth 1.0. Returns the container object.
 
 Request containers provide a unified interface for L</"authenticate"> to parse
 and update HTTP requests. They must perform the L<Role::Tiny> role
-L<WWW::OAuth::HTTPRequest>. Custom container classes can be instantiated
+L<WWW::OAuth::Request>. Custom container classes can be instantiated
 directly or via L</"request_from">.
 
 =head2 HTTPRequest
 
-L<WWW::OAuth::HTTPRequest::HTTPRequest> wraps a L<HTTP::Request> object, which
+L<WWW::OAuth::Request::HTTPRequest> wraps a L<HTTP::Request> object, which
 is compatible with several user agents including L<LWP::UserAgent>,
 L<HTTP::Thin>, and L<Net::Async::HTTP>.
 
 =head2 HTTPTiny
 
-L<WWW::OAuth::HTTPRequest::HTTPTiny> contains the request attributes directly,
+L<WWW::OAuth::Request::HTTPTiny> contains the request attributes directly,
 as L<HTTP::Tiny> does not use request objects.
 
 =head2 Mojo
 
-L<WWW::OAuth::HTTPRequest::Mojo> wraps a L<Mojo::Message::Request> object,
+L<WWW::OAuth::Request::Mojo> wraps a L<Mojo::Message::Request> object,
 which is used by L<Mojo::UserAgent> via L<Mojo::Transaction>.
 
 =head1 BUGS

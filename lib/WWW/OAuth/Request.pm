@@ -1,4 +1,4 @@
-package WWW::OAuth::HTTPRequest;
+package WWW::OAuth::Request;
 
 use Encode 'decode', 'encode';
 use URI;
@@ -42,7 +42,7 @@ sub remove_body_params {
 
 =head1 NAME
 
-WWW::OAuth::HTTPRequest - HTTP Request container role
+WWW::OAuth::Request - HTTP Request container role
 
 =head1 SYNOPSIS
 

@@ -1,4 +1,4 @@
-package WWW::OAuth::HTTPRequest::HTTPRequest;
+package WWW::OAuth::Request::HTTPRequest;
 
 use strict;
 use warnings;
@@ -9,7 +9,7 @@ use Scalar::Util 'blessed';
 use URI::QueryParam;
 
 use Role::Tiny::With;
-with 'WWW::OAuth::HTTPRequest';
+with 'WWW::OAuth::Request';
 
 our $VERSION = '0.001';
 
@@ -66,7 +66,7 @@ sub request_with {
 
 =head1 NAME
 
-WWW::OAuth::HTTPRequest::HTTPRequest - Module abstract
+WWW::OAuth::Request::HTTPRequest - Module abstract
 
 =head1 SYNOPSIS
 

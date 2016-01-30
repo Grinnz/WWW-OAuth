@@ -12,7 +12,7 @@ use URI;
 use URI::QueryParam;
 use URI::Escape 'uri_escape_utf8', 'uri_unescape';
 use WWW::OAuth;
-use WWW::OAuth::HTTPRequest::HTTPTiny;
+use WWW::OAuth::Request::HTTPTiny;
 
 my $api_key = $ENV{TWITTER_API_KEY};
 my $api_secret = $ENV{TWITTER_API_SECRET};
@@ -119,7 +119,7 @@ sub _request {
 			$req{headers}{'content-type'} = 'application/x-www-form-urlencoded';
 		}
 	}
-	return WWW::OAuth::HTTPRequest::HTTPTiny->new(%req);
+	return WWW::OAuth::Request::HTTPTiny->new(%req);
 }
 
 sub _parse_oauth_header {

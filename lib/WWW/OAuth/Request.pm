@@ -16,7 +16,7 @@ sub remove_query_params {
 	my $self = shift;
 	my $url = URI->new($self->url);
 	$url->query_param_delete($_) for @_;
-	$self->url($url);
+	$self->url("$url");
 	return $self;
 }
 
@@ -33,8 +33,7 @@ sub remove_body_params {
 	$dummy->query($self->content);
 	$dummy->query_param_delete(encode 'UTF-8', $_) for @_;
 	my $content = $dummy->query;
-	$content = '' unless defined $content;
-	$self->content($content);
+	$self->content(defined $content ? $content : '');
 	return $self;
 }
 

@@ -24,15 +24,10 @@ sub content_is_form {
 
 sub set_header { $_[0]->headers->{lc $_[1]} = $_[2]; $_[0] }
 
-sub options {
-	my $self = shift;
-	return { headers => $self->headers, content => $self->content };
-}
-
 sub request_with {
 	my ($self, $ua) = @_;
 	croak 'Unknown user-agent object' unless blessed $ua and $ua->isa('HTTP::Tiny');
-	return $ua->request($self->method, $self->url, $self->options);
+	return $ua->request($self->method, $self->url, { headers => $self->headers, content => $self->content });
 }
 
 1;

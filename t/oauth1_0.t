@@ -12,7 +12,6 @@ use URI;
 use URI::QueryParam;
 use URI::Escape 'uri_escape_utf8', 'uri_unescape';
 use WWW::OAuth;
-use WWW::OAuth::Request::Basic;
 
 my $api_key = $ENV{TWITTER_API_KEY};
 my $api_secret = $ENV{TWITTER_API_SECRET};
@@ -60,8 +59,7 @@ is $test_signature, $oauth_params->{oauth_signature}, 'signature formed correctl
 
 my $response;
 if ($test_online) {
-	my $options = { headers => $oauth_request->headers, content => $oauth_request->content };
-	my $res = HTTP::Tiny->new->request($oauth_request->method, $oauth_request->url, $options);
+	my $res = $oauth_request->request_with(HTTP::Tiny->new);
 	ok $res->{success}, 'OAuth request successful' or diag Dumper $res;
 	$response = $res->{content};
 } else {
@@ -95,8 +93,7 @@ $test_signature = _test_signature('GET', $verify_url, $oauth_params, $api_secret
 is $test_signature, $oauth_params->{oauth_signature}, 'signature formed correctly';
 
 if ($test_online) {
-	my $options = { headers => $verify_request->headers, content => $verify_request->content };
-	my $res = HTTP::Tiny->new->request($verify_request->method, $verify_request->url, $options);
+	my $res = $verify_request->request_with(HTTP::Tiny->new);
 	ok $res->{success}, 'OAuth request successful' or diag Dumper $res;
 	$response = $res->{content};
 } else {
@@ -119,7 +116,7 @@ sub _request {
 			$req{headers}{'content-type'} = 'application/x-www-form-urlencoded';
 		}
 	}
-	return WWW::OAuth::Request::Basic->new(%req);
+	return WWW::OAuth->request_from(Basic => \%req);
 }
 
 sub _parse_oauth_header {

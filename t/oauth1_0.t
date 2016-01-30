@@ -12,6 +12,7 @@ use URI;
 use URI::QueryParam;
 use URI::Escape 'uri_escape_utf8', 'uri_unescape';
 use WWW::OAuth;
+use WWW::OAuth::Util 'oauth_request_from';
 
 my $api_key = $ENV{TWITTER_API_KEY};
 my $api_secret = $ENV{TWITTER_API_SECRET};
@@ -116,7 +117,7 @@ sub _request {
 			$req{headers}{'content-type'} = 'application/x-www-form-urlencoded';
 		}
 	}
-	return WWW::OAuth->request_from(Basic => \%req);
+	return oauth_request_from(Basic => \%req);
 }
 
 sub _parse_oauth_header {

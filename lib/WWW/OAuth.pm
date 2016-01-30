@@ -10,49 +10,12 @@ use Carp 'croak';
 use Digest::SHA 'hmac_sha1';
 use List::Util 'pairs', 'pairgrep';
 use MIME::Base64 'encode_base64';
-use Module::Runtime 'require_module';
-use Role::Tiny ();
 use Scalar::Util 'blessed';
 use URI;
 use URI::Escape 'uri_escape_utf8';
+use WWW::OAuth::Util 'oauth_request_from';
 
 our $VERSION = '0.001';
-
-sub request_from {
-	my $self = shift;
-	
-	my ($class, %args);
-	if (blessed $_[0]) { # Request object
-		my $req = shift;
-		if (Role::Tiny::does_role($req, 'WWW::OAuth::Request')) { # already in container
-			return $req;
-		} elsif ($req->isa('HTTP::Request')) {
-			$class = 'HTTPRequest';
-		} elsif ($req->isa('Mojo::Message')) {
-			$class = 'Mojo';
-		} else {
-			$class = blessed $req;
-			$class =~ s/:://g;
-		}
-		%args = (request => $req);
-	} elsif (ref $_[0]) { # Hashref for HTTP::Tiny
-		my $href = shift;
-		$class = 'Basic';
-		%args = %$href;
-	} else { # Request class and args hashref
-		($class, my $href) = @_;
-		%args = %$href;
-	}
-	
-	croak 'No request to authenticate' unless defined $class and %args;
-	
-	$class = "WWW::OAuth::Request::$class" unless $class =~ /::/;
-	require_module $class;
-	croak "Class $class does not perform the role WWW::OAuth::Request"
-		unless Role::Tiny::does_role($class, 'WWW::OAuth::Request');
-	
-	return $class->new(%args);
-}
 
 my %signature_methods = (
 	'PLAINTEXT' => '_signature_plaintext',
@@ -62,7 +25,7 @@ my %signature_methods = (
 
 sub authenticate {
 	my $self = shift;
-	my $req = $self->request_from(@_);
+	my $req = oauth_request_from(@_);
 	
 	my ($client_id, $client_secret, $token, $token_secret, $signature_method) =
 		($self->client_id, $self->client_secret, $self->token, $self->token_secret, $self->signature_method);

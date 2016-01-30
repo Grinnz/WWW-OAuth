@@ -11,41 +11,7 @@ use URI::Escape 'uri_escape_utf8', 'uri_unescape';
 
 our $VERSION = '0.001';
 
-our @EXPORT_OK = qw(oauth_request_from form_urlencode form_urldecode);
-
-sub oauth_request_from {
-	my ($class, %args);
-	if (blessed $_[0]) { # Request object
-		my $req = shift;
-		if (Role::Tiny::does_role($req, 'WWW::OAuth::Request')) { # already in container
-			return $req;
-		} elsif ($req->isa('HTTP::Request')) {
-			$class = 'HTTPRequest';
-		} elsif ($req->isa('Mojo::Message')) {
-			$class = 'Mojo';
-		} else {
-			$class = blessed $req;
-			$class =~ s/:://g;
-		}
-		%args = (request => $req);
-	} elsif (ref $_[0]) { # Hashref for HTTP::Tiny
-		my $href = shift;
-		$class = 'Basic';
-		%args = %$href;
-	} else { # Request class and args hashref
-		($class, my $href) = @_;
-		%args = %$href;
-	}
-	
-	croak 'No request to authenticate' unless defined $class and %args;
-	
-	$class = "WWW::OAuth::Request::$class" unless $class =~ /::/;
-	require_module $class;
-	croak "Class $class does not perform the role WWW::OAuth::Request"
-		unless Role::Tiny::does_role($class, 'WWW::OAuth::Request');
-	
-	return $class->new(%args);
-}
+our @EXPORT_OK = qw(form_urlencode form_urldecode oauth_request_from);
 
 sub form_urlencode {
 	my $form = shift;
@@ -76,6 +42,38 @@ sub form_urldecode {
 	return \@form;
 }
 
+sub oauth_request_from {
+	my $class = ref $_[0] ? undef : shift;
+	my $proto = shift;
+	my %args;
+	if (blessed $proto) { # Request object
+		return $proto if Role::Tiny::does_role($proto, 'WWW::OAuth::Request'); # already in container
+		if (!defined $class) {
+			if ($proto->isa('HTTP::Request')) {
+				$class = 'HTTP_Request';
+			} elsif ($proto->isa('Mojo::Message')) {
+				$class = 'Mojo';
+			} else {
+				$class = blessed $proto;
+				$class =~ s/::/_/g;
+			}
+		}
+		%args = (request => $req);
+	} elsif (ref $proto eq 'HASH') { # Hashref
+		$class = 'Basic' unless defined $class;
+		%args = %$proto;
+	} else {
+		croak 'No request or request parameters found';
+	}
+	
+	$class = "WWW::OAuth::Request::$class" unless $class =~ /::/;
+	require_module $class;
+	croak "Class $class does not perform the role WWW::OAuth::Request"
+		unless Role::Tiny::does_role($class, 'WWW::OAuth::Request');
+	
+	return $class->new(%args);
+}
+
 1;
 
 =head1 NAME
@@ -86,7 +84,25 @@ WWW::OAuth::Util - Utility functions for WWW::OAuth
 
 =head1 DESCRIPTION
 
-=head1 METHODS
+=head1 FUNCTIONS
+
+=head2 oauth_request_from
+
+ my $container = oauth_request_from($http_request);
+ my $container = oauth_request_from({ method => 'GET', url => $url });
+ my $container = oauth_request_from(Basic => { method => 'POST', url => $url, content => $content });
+
+Constructs an HTTP request container performing the L<WWW::OAuth::Request>
+role. The input should be a recognized request object or hashref of arguments
+optionally preceded by a container class name. The class name will be appended
+to C<WWW::OAuth::Request::> if it does not contain C<::>. Currently,
+L<HTTP::Request> and L<Mojo::Message::Request> objects are recognized, and
+hashrefs will be used to construct a L<WWW::OAuth::Request::Basic> object if
+no container class is specified.
+
+ # Longer forms to construct WWW::OAuth::Request::HTTP_Request
+ my $container = oauth_request_from(HTTP_Request => $http_request);
+ my $container = oauth_request_from(HTTP_Request => { request => $http_request });
 
 =head1 BUGS
 

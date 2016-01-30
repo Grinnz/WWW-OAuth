@@ -35,7 +35,7 @@
             "Class::Tiny::Chained" : "0",
             "Digest::SHA" : "0",
             "Encode" : "0",
-            "List::Util" : "1.29",
+            "List::Util" : "1.33",
             "MIME::Base64" : "0",
             "Module::Runtime" : "0",
             "Role::Tiny" : "2.000000",
@@ -68,12 +68,16 @@
          "file" : "lib/WWW/OAuth/Request/Basic.pm",
          "version" : "0.001"
       },
-      "WWW::OAuth::Request::HTTPRequest" : {
-         "file" : "lib/WWW/OAuth/Request/HTTPRequest.pm",
+      "WWW::OAuth::Request::HTTP_Request" : {
+         "file" : "lib/WWW/OAuth/Request/HTTP_Request.pm",
          "version" : "0.001"
       },
       "WWW::OAuth::Request::Mojo" : {
          "file" : "lib/WWW/OAuth/Request/Mojo.pm",
+         "version" : "0.001"
+      },
+      "WWW::OAuth::Util" : {
+         "file" : "lib/WWW/OAuth/Util.pm",
          "version" : "0.001"
       }
    },

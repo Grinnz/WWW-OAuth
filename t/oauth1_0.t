@@ -36,14 +36,10 @@ if ($ENV{AUTHOR_TESTING} and defined $api_key and defined $api_secret and define
 
 # OAuth token request
 my $oauth_request_url = $oauth_base_url . 'request_token';
-my $oauth_request = _request(POST => $oauth_request_url, { oauth_callback => 'oob' });
-ok $oauth_request->content_is_form, 'OAuth request contains form content';
-is $oauth_request->content, 'oauth_callback=oob', 'oauth parameter set in body';
+my $oauth_request = _request(POST => $oauth_request_url);
 
 my $auth = WWW::OAuth->new(client_id => $api_key, client_secret => $api_secret);
-$auth->authenticate($oauth_request);
-is $oauth_request->content, '', 'oauth parameter removed from body';
-is $oauth_request->url, $oauth_request_url, 'request url unchanged';
+$auth->authenticate($oauth_request, { oauth_callback => 'oob' });
 
 my $oauth_params = _parse_oauth_header($oauth_request->headers->{authorization} || '');
 is $oauth_params->{oauth_consumer_key}, $api_key, 'oauth_consumer_key is set to API key';
@@ -75,7 +71,6 @@ ok defined(my $request_secret = $response_params->{oauth_token_secret}), 'got re
 # Verify credentials request
 my $verify_url = $api_base_url . 'account/verify_credentials.json';
 my $verify_request = _request(GET => $verify_url);
-ok !$verify_request->content_is_form, 'OAuth request does not contain form content';
 
 $auth->token($token);
 $auth->token_secret($token_secret);

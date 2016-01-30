@@ -8,7 +8,7 @@ use Class::Tiny::Chained qw(client_id client_secret token token_secret), {
 
 use Carp 'croak';
 use Digest::SHA 'hmac_sha1';
-use List::Util 'pairs', 'pairgrep';
+use List::Util 'all', 'pairs', 'pairgrep';
 use MIME::Base64 'encode_base64';
 use Scalar::Util 'blessed';
 use URI;
@@ -25,7 +25,14 @@ my %signature_methods = (
 
 sub authenticate {
 	my $self = shift;
-	my $req = oauth_request_from(@_);
+	my ($req, $extra_params);
+	if (ref $_[0]) {
+		$req = oauth_request_from($_[0]);
+		$extra_params = $_[1];
+	} else {
+		$req = oauth_request_from($_[0], $_[1]);
+		$extra_params = $_[2];
+	}
 	
 	my ($client_id, $client_secret, $token, $token_secret, $signature_method) =
 		($self->client_id, $self->client_secret, $self->token, $self->token_secret, $self->signature_method);
@@ -59,6 +66,13 @@ sub authenticate {
 			%oauth_params = (%oauth_params, %body_oauth_params);
 			$req->remove_body_params(keys %body_oauth_params);
 		}
+	}
+	
+	# Extra parameters passed to authenticate()
+	if (defined $extra_params) {
+		croak 'OAuth parameters must be specified as a hashref' unless ref $extra_params eq 'HASH';
+		croak 'OAuth parameters must all begin with "oauth_"' unless all { m/^oauth_/ } keys %$extra_params;
+		%oauth_params = (%oauth_params, %$extra_params);
 	}
 	
 	# This parameter is not allowed when creating the signature
@@ -197,27 +211,15 @@ L<Crypt::OpenSSL::RSA>. Defaults to C<HMAC-SHA1>.
 
 =head1 METHODS
 
-=head2 request_from
-
- my $container = WWW::OAuth->request_from($http_request);
- my $container = WWW::OAuth->request_from(Basic => { method => 'GET', url => $url });
-
-Can be called as a class or object method. Constructs an HTTP request container
-performing the L<WWW::OAuth::Request> role. The input can either be a
-recognized request object, or a container class name followed by a hashref of
-constructor arguments. The class name will be appended to
-C<WWW::OAuth::Request::> if it does not contain C<::>. Currently,
-L<HTTP::Request> and L<Mojo::Message::Request> objects are recognized.
-
 =head2 authenticate
 
  $container = $oauth->authenticate($container);
  my $container = $oauth->authenticate($http_request);
  my $container = $oauth->authenticate(Basic => { method => 'GET', url => $url });
 
-Wraps the HTTP request in a container with L</"request_from">, then updates the
-request URL, content, and headers as needed to construct and sign the request
-for OAuth 1.0. Returns the container object.
+Wraps the HTTP request in a container with L<WWW::OAuth::Util/"oauth_request_from">,
+then updates the request URL, content, and headers as needed to construct and
+sign the request for OAuth 1.0. Returns the container object.
 
 =head1 HTTP REQUEST CONTAINERS
 
@@ -231,9 +233,9 @@ directly or via L</"request_from">.
 L<WWW::OAuth::Request::Basic> contains the request attributes directly, for
 user agents such as L<HTTP::Tiny> that do not use request objects.
 
-=head2 HTTPRequest
+=head2 HTTP_Request
 
-L<WWW::OAuth::Request::HTTPRequest> wraps a L<HTTP::Request> object, which
+L<WWW::OAuth::Request::HTTP_Request> wraps a L<HTTP::Request> object, which
 is compatible with several user agents including L<LWP::UserAgent>,
 L<HTTP::Thin>, and L<Net::Async::HTTP>.
 

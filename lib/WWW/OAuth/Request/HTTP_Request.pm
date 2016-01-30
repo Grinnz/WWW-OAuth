@@ -1,4 +1,4 @@
-package WWW::OAuth::Request::HTTPRequest;
+package WWW::OAuth::Request::HTTP_Request;
 
 use strict;
 use warnings;
@@ -66,7 +66,7 @@ sub request_with {
 
 =head1 NAME
 
-WWW::OAuth::Request::HTTPRequest - Module abstract
+WWW::OAuth::Request::HTTP_Request - Module abstract
 
 =head1 SYNOPSIS
 

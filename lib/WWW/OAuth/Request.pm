@@ -8,7 +8,7 @@ use Role::Tiny;
 
 our $VERSION = '0.001';
 
-requires 'method', 'url', 'body', 'body_is_form', 'set_header', 'request_with';
+requires 'method', 'url', 'content', 'content_is_form', 'set_header', 'request_with';
 
 sub query_pairs { [URI->new(shift->url)->query_form] }
 
@@ -23,18 +23,18 @@ sub remove_query_params {
 sub body_pairs {
 	my $self = shift;
 	my $dummy = URI->new;
-	$dummy->query($self->body);
+	$dummy->query($self->content);
 	return [map { decode 'UTF-8', $_ } $dummy->query_form];
 }
 
 sub remove_body_params {
 	my $self = shift;
 	my $dummy = URI->new;
-	$dummy->query($self->body);
+	$dummy->query($self->content);
 	$dummy->query_param_delete(encode 'UTF-8', $_) for @_;
-	my $body = $dummy->query;
-	$body = '' unless defined $body;
-	$self->body($body);
+	my $content = $dummy->query;
+	$content = '' unless defined $content;
+	$self->content($content);
 	return $self;
 }
 

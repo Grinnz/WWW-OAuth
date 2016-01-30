@@ -22,14 +22,14 @@ sub url {
 	return $self;
 }
 
-sub body {
+sub content {
 	my $self = shift;
 	return $self->request->content unless @_;
 	$self->request->content(shift);
 	return $self;
 }
 
-sub body_is_form {
+sub content_is_form {
 	my $self = shift;
 	my @parts = $self->request->parts;
 	return 0 if @parts;

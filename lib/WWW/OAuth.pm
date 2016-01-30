@@ -37,7 +37,7 @@ sub request_from {
 		%args = (request => $req);
 	} elsif (ref $_[0]) { # Hashref for HTTP::Tiny
 		my $href = shift;
-		$class = 'HTTPTiny';
+		$class = 'Basic';
 		%args = %$href;
 	} else { # Request class and args hashref
 		($class, my $href) = @_;
@@ -90,7 +90,7 @@ sub authenticate {
 		%oauth_params = (%oauth_params, %query_oauth_params);
 		$req->remove_query_params(keys %query_oauth_params);
 	}
-	if ($req->body_is_form) {
+	if ($req->content_is_form) {
 		my %body_oauth_params = pairgrep { $a =~ m/^oauth_/ } @{$req->body_pairs};
 		if (%body_oauth_params) {
 			%oauth_params = (%oauth_params, %body_oauth_params);
@@ -138,7 +138,7 @@ sub _signature_base_string {
 	my ($req, $oauth_params) = @_;
 	
 	my @encoded_params = map { uri_escape_utf8($_) } (@{$req->query_pairs}, %$oauth_params);
-	push @encoded_params, map { uri_escape_utf8($_) } @{$req->body_pairs} if $req->body_is_form;
+	push @encoded_params, map { uri_escape_utf8($_) } @{$req->body_pairs} if $req->content_is_form;
 	my @sorted_pairs = sort { ($a->[0] cmp $b->[0]) or ($a->[1] cmp $b->[1]) } pairs @encoded_params;
 	my $params_str = join '&', map { $_->[0] . '=' . $_->[1] } @sorted_pairs;
 	
@@ -167,7 +167,7 @@ WWW::OAuth - Portable OAuth 1.0 authentication
  
  # HTTP::Tiny
  use HTTP::Tiny;
- my $res = $oauth->authenticate(HTTPTiny => { method => 'GET', url => $url })
+ my $res = $oauth->authenticate(Basic => { method => 'GET', url => $url })
    ->request_with(HTTP::Tiny->new);
  
  # HTTP::Request
@@ -237,7 +237,7 @@ L<Crypt::OpenSSL::RSA>. Defaults to C<HMAC-SHA1>.
 =head2 request_from
 
  my $container = WWW::OAuth->request_from($http_request);
- my $container = WWW::OAuth->request_from(HTTPTiny => { method => 'GET', url => $url });
+ my $container = WWW::OAuth->request_from(Basic => { method => 'GET', url => $url });
 
 Can be called as a class or object method. Constructs an HTTP request container
 performing the L<WWW::OAuth::Request> role. The input can either be a
@@ -250,11 +250,11 @@ L<HTTP::Request> and L<Mojo::Message::Request> objects are recognized.
 
  $container = $oauth->authenticate($container);
  my $container = $oauth->authenticate($http_request);
- my $container = $oauth->authenticate(HTTPTiny => { method => 'GET', url => $url });
+ my $container = $oauth->authenticate(Basic => { method => 'GET', url => $url });
 
 Wraps the HTTP request in a container with L</"request_from">, then updates the
-request URL, body, and headers as needed to construct and sign the request for
-OAuth 1.0. Returns the container object.
+request URL, content, and headers as needed to construct and sign the request
+for OAuth 1.0. Returns the container object.
 
 =head1 HTTP REQUEST CONTAINERS
 
@@ -263,16 +263,16 @@ and update HTTP requests. They must perform the L<Role::Tiny> role
 L<WWW::OAuth::Request>. Custom container classes can be instantiated
 directly or via L</"request_from">.
 
+=head2 Basic
+
+L<WWW::OAuth::Request::Basic> contains the request attributes directly, for
+user agents such as L<HTTP::Tiny> that do not use request objects.
+
 =head2 HTTPRequest
 
 L<WWW::OAuth::Request::HTTPRequest> wraps a L<HTTP::Request> object, which
 is compatible with several user agents including L<LWP::UserAgent>,
 L<HTTP::Thin>, and L<Net::Async::HTTP>.
-
-=head2 HTTPTiny
-
-L<WWW::OAuth::Request::HTTPTiny> contains the request attributes directly,
-as L<HTTP::Tiny> does not use request objects.
 
 =head2 Mojo
 

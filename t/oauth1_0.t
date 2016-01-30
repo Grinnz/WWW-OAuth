@@ -12,7 +12,7 @@ use URI;
 use URI::QueryParam;
 use URI::Escape 'uri_escape_utf8', 'uri_unescape';
 use WWW::OAuth;
-use WWW::OAuth::Request::HTTPTiny;
+use WWW::OAuth::Request::Basic;
 
 my $api_key = $ENV{TWITTER_API_KEY};
 my $api_secret = $ENV{TWITTER_API_SECRET};
@@ -37,12 +37,12 @@ if ($ENV{AUTHOR_TESTING} and defined $api_key and defined $api_secret and define
 # OAuth token request
 my $oauth_request_url = $oauth_base_url . 'request_token';
 my $oauth_request = _request(POST => $oauth_request_url, { oauth_callback => 'oob' });
-ok $oauth_request->body_is_form, 'OAuth request contains form body';
-is $oauth_request->body, 'oauth_callback=oob', 'oauth parameter set in body';
+ok $oauth_request->content_is_form, 'OAuth request contains form content';
+is $oauth_request->content, 'oauth_callback=oob', 'oauth parameter set in body';
 
 my $auth = WWW::OAuth->new(client_id => $api_key, client_secret => $api_secret);
 $auth->authenticate($oauth_request);
-is $oauth_request->body, '', 'oauth parameter removed from body';
+is $oauth_request->content, '', 'oauth parameter removed from body';
 is $oauth_request->url, $oauth_request_url, 'request url unchanged';
 
 my $oauth_params = _parse_oauth_header($oauth_request->headers->{authorization} || '');
@@ -76,7 +76,7 @@ ok defined(my $request_secret = $response_params->{oauth_token_secret}), 'got re
 # Verify credentials request
 my $verify_url = $api_base_url . 'account/verify_credentials.json';
 my $verify_request = _request(GET => $verify_url);
-ok !$verify_request->body_is_form, 'OAuth request does not contain form body';
+ok !$verify_request->content_is_form, 'OAuth request does not contain form content';
 
 $auth->token($token);
 $auth->token_secret($token_secret);
@@ -119,7 +119,7 @@ sub _request {
 			$req{headers}{'content-type'} = 'application/x-www-form-urlencoded';
 		}
 	}
-	return WWW::OAuth::Request::HTTPTiny->new(%req);
+	return WWW::OAuth::Request::Basic->new(%req);
 }
 
 sub _parse_oauth_header {

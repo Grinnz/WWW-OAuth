@@ -1,4 +1,4 @@
-package WWW::OAuth::Request::HTTPTiny;
+package WWW::OAuth::Request::Basic;
 
 use strict;
 use warnings;
@@ -13,14 +13,7 @@ with 'WWW::OAuth::Request';
 
 our $VERSION = '0.001';
 
-sub body {
-	my $self = shift;
-	return $self->content unless @_;
-	$self->content(shift);
-	return $self;
-}
-
-sub body_is_form {
+sub content_is_form {
 	my $self = shift;
 	my $content_type_key = first { lc $_ eq 'content-type' } keys %{$self->headers};
 	return 0 unless defined $content_type_key;
@@ -46,7 +39,7 @@ sub request_with {
 
 =head1 NAME
 
-WWW::OAuth::Request::HTTPTiny - Module abstract
+WWW::OAuth::Request::Basic - Module abstract
 
 =head1 SYNOPSIS
 

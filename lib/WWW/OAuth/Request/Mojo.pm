@@ -21,14 +21,14 @@ sub url {
 	return $self;
 }
 
-sub body {
+sub content {
 	my $self = shift;
 	return $self->request->body unless @_;
 	$self->request->body(shift);
 	return $self;
 }
 
-sub body_is_form {
+sub content_is_form {
 	my $self = shift;
 	return 0 if $self->request->content->is_multipart;
 	my $content_type = $self->request->headers->content_type || '';
@@ -60,7 +60,7 @@ sub set_header { $_[0]->request->headers->header(@_[1,2]); $_[0] }
 sub request_with {
 	my ($self, $ua, $cb) = @_;
 	croak 'Unknown user-agent object' unless blessed $ua and $ua->isa('Mojo::UserAgent');
-	my $tx = $ua->build_tx($self->method, $self->url, $self->request->headers->to_hash, $self->body);
+	my $tx = $ua->build_tx($self->method, $self->url, $self->request->headers->to_hash, $self->content);
 	return $ua->start($tx, $cb);
 }
 

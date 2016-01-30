@@ -64,12 +64,12 @@
          "file" : "lib/WWW/OAuth/Request.pm",
          "version" : "0.001"
       },
-      "WWW::OAuth::Request::HTTPRequest" : {
-         "file" : "lib/WWW/OAuth/Request/HTTPRequest.pm",
+      "WWW::OAuth::Request::Basic" : {
+         "file" : "lib/WWW/OAuth/Request/Basic.pm",
          "version" : "0.001"
       },
-      "WWW::OAuth::Request::HTTPTiny" : {
-         "file" : "lib/WWW/OAuth/Request/HTTPTiny.pm",
+      "WWW::OAuth::Request::HTTPRequest" : {
+         "file" : "lib/WWW/OAuth/Request/HTTPRequest.pm",
          "version" : "0.001"
       },
       "WWW::OAuth::Request::Mojo" : {

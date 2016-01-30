@@ -29,6 +29,11 @@
             "ExtUtils::MakeMaker" : "0"
          }
       },
+      "develop" : {
+         "requires" : {
+            "HTTP::Tiny" : "0.014"
+         }
+      },
       "runtime" : {
          "requires" : {
             "Carp" : "0",
@@ -49,7 +54,6 @@
       "test" : {
          "requires" : {
             "Data::Section::Simple" : "0",
-            "HTTP::Tiny" : "0.014",
             "JSON::PP" : "0",
             "Test::More" : "0.88"
          }

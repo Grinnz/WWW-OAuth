@@ -12,6 +12,6 @@ requires 'URI';
 requires 'URI::Escape';
 requires 'URI::QueryParam';
 test_requires 'Data::Section::Simple';
-test_requires 'HTTP::Tiny' => '0.014';
 test_requires 'JSON::PP';
 test_requires 'Test::More' => '0.88';
+author_requires 'HTTP::Tiny' => '0.014';

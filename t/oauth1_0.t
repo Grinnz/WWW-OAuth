@@ -4,15 +4,12 @@ use Test::More;
 use Data::Dumper 'Dumper';
 use Data::Section::Simple 'get_data_section';
 use Digest::SHA 'hmac_sha1';
-use Encode 'decode';
-use HTTP::Tiny;
 use JSON::PP 'decode_json';
 use MIME::Base64 'encode_base64';
 use URI;
-use URI::QueryParam;
 use URI::Escape 'uri_escape_utf8', 'uri_unescape';
 use WWW::OAuth;
-use WWW::OAuth::Util 'oauth_request_from';
+use WWW::OAuth::Util 'form_urldecode', 'form_urlencode', 'oauth_request_from';
 
 my $api_key = $ENV{TWITTER_API_KEY};
 my $api_secret = $ENV{TWITTER_API_SECRET};
@@ -26,6 +23,7 @@ my $test_online;
 if ($ENV{AUTHOR_TESTING} and defined $api_key and defined $api_secret and defined $token and defined $token_secret) {
 	note 'Running online test for Twitter OAuth 1.0';
 	$test_online = 1;
+	require HTTP::Tiny;
 } else {
 	note 'Running offline test for Twitter OAuth 1.0; set AUTHOR_TESTING and TWITTER_API_KEY/TWITTER_API_SECRET/TWITTER_ACCESS_TOKEN/TWITTER_ACCESS_SECRET for online test';
 	$api_key = 'foo';
@@ -60,10 +58,10 @@ if ($test_online) {
 	ok $res->{success}, 'OAuth request successful' or diag Dumper $res;
 	$response = $res->{content};
 } else {
-	$response = get_data_section 'request_token_response';
+	chomp($response = get_data_section 'request_token_response');
 }
 
-my $response_params = _decode_form_urlencoded($response);
+my $response_params = {@{form_urldecode($response)}};
 is $response_params->{oauth_callback_confirmed}, 'true', 'OAuth callback was confirmed';
 ok defined(my $request_token = $response_params->{oauth_token}), 'got request token';
 ok defined(my $request_secret = $response_params->{oauth_token_secret}), 'got request secret';
@@ -105,10 +103,10 @@ sub _request {
 	if (defined $params) {
 		if ($method eq 'GET' or $method eq 'HEAD') {
 			my $uri = URI->new($url);
-			$uri->query_form_hash($params);
+			$uri->query_form($params);
 			$req{url} = $uri->as_string;
 		} else {
-			$req{content} = HTTP::Tiny->new->www_form_urlencode($params);
+			$req{content} = form_urlencode($params);
 			$req{headers}{'content-type'} = 'application/x-www-form-urlencoded';
 		}
 	}
@@ -122,14 +120,6 @@ sub _parse_oauth_header {
 		$oauth_params{$1} = uri_unescape $2;
 	}
 	return \%oauth_params;
-}
-
-sub _decode_form_urlencoded {
-	chomp(my $response = shift);
-	my $dummy = URI->new;
-	$dummy->query($response);
-	my %response_params = map { decode 'UTF-8', $_ } $dummy->query_form;
-	return \%response_params;
 }
 
 sub _test_signature {

@@ -32,7 +32,6 @@ my %WriteMakefileArgs = (
   },
   "TEST_REQUIRES" => {
     "Data::Section::Simple" => 0,
-    "HTTP::Tiny" => "0.014",
     "JSON::PP" => 0,
     "Test::More" => "0.88"
   },
@@ -49,7 +48,6 @@ my %FallbackPrereqs = (
   "Data::Section::Simple" => 0,
   "Digest::SHA" => 0,
   "Encode" => 0,
-  "HTTP::Tiny" => "0.014",
   "JSON::PP" => 0,
   "List::Util" => "1.33",
   "MIME::Base64" => 0,

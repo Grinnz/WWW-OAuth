@@ -25,14 +25,10 @@ my %signature_methods = (
 
 sub authenticate {
 	my $self = shift;
-	my ($req, $extra_params);
-	if (ref $_[0]) {
-		$req = oauth_request_from($_[0]);
-		$extra_params = $_[1];
-	} else {
-		$req = oauth_request_from($_[0], $_[1]);
-		$extra_params = $_[2];
-	}
+	my @req_args = (shift);
+	push @req_args, shift unless ref $req_args[0];
+	my $req = oauth_request_from(@req_args);
+	my $extra_params = shift;
 	
 	my ($client_id, $client_secret, $token, $token_secret, $signature_method) =
 		($self->client_id, $self->client_secret, $self->token, $self->token_secret, $self->signature_method);
@@ -213,13 +209,15 @@ L<Crypt::OpenSSL::RSA>. Defaults to C<HMAC-SHA1>.
 
 =head2 authenticate
 
- $container = $oauth->authenticate($container);
- my $container = $oauth->authenticate($http_request);
- my $container = $oauth->authenticate(Basic => { method => 'GET', url => $url });
+ $container = $oauth->authenticate($container, \%oauth_params);
+ my $container = $oauth->authenticate($http_request, \%oauth_params);
+ my $container = $oauth->authenticate(Basic => { method => 'GET', url => $url }, \%oauth_params);
 
 Wraps the HTTP request in a container with L<WWW::OAuth::Util/"oauth_request_from">,
 then updates the request URL, content, and headers as needed to construct and
-sign the request for OAuth 1.0. Returns the container object.
+sign the request for OAuth 1.0. OAuth parameters may be optionally specified in
+a hashref, and will override any generated or existing OAuth parameters of the
+same name. Returns the container object.
 
 =head1 HTTP REQUEST CONTAINERS
 

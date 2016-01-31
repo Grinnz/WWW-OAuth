@@ -13,7 +13,9 @@ test_requires 'Data::Section::Simple';
 test_requires 'JSON::PP';
 test_requires 'Test::More' => '0.88';
 test_requires 'Test::Requires';
-author_requires 'HTTP::Request';
-author_requires 'HTTP::Tiny' => '0.014';
-author_recommends 'LWP::UserAgent';
-author_recommends 'Mojolicious' => '6.0';
+on develop => sub {
+	requires 'HTTP::Request';
+	requires 'HTTP::Tiny' => '0.014';
+	recommends 'LWP::UserAgent';
+	recommends 'Mojolicious' => '6.0';
+};

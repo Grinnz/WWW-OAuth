@@ -9,7 +9,7 @@ use MIME::Base64 'encode_base64';
 use URI;
 use URI::Escape 'uri_escape_utf8', 'uri_unescape';
 use WWW::OAuth;
-use WWW::OAuth::Util 'form_urldecode', 'form_urlencode', 'oauth_request_from';
+use WWW::OAuth::Util 'form_urldecode', 'form_urlencode', 'oauth_request_wrap';
 
 my $api_key = $ENV{TWITTER_API_KEY};
 my $api_secret = $ENV{TWITTER_API_SECRET};
@@ -110,7 +110,7 @@ sub _request {
 			$req{headers}{'content-type'} = 'application/x-www-form-urlencoded';
 		}
 	}
-	return oauth_request_from(Basic => \%req);
+	return oauth_request_wrap(Basic => \%req);
 }
 
 sub _parse_oauth_header {

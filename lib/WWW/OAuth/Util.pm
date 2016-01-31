@@ -10,44 +10,50 @@ use URI::Escape 'uri_escape_utf8', 'uri_unescape';
 
 our $VERSION = '0.001';
 
-our @EXPORT_OK = qw(form_urlencode form_urldecode oauth_request_from);
-
-sub form_urlencode {
-	my $form = shift;
-	my @params;
-	if (ref $form eq 'ARRAY') {
-		@params = @$form;
-	} elsif (ref $form eq 'HASH') {
-		@params = %$form;
-	} else {
-		croak 'Form to urlencode must be hash or array reference';
-	}
-	croak 'Form to urlencode must be even-sized' if @params % 2;
-	my @pairs;
-	foreach my $pair (pairs @params) {
-		my $key = $pair->[0];
-		my @values = ref $pair->[1] eq 'ARRAY' ? @{$pair->[1]} : $pair->[1];
-		do { s/ /+/g; $_ = uri_escape_utf8 $_ } for $key, @values;
-		push @pairs, "$key=$_" for @values;
-	}
-	@pairs = sort @pairs if ref $form eq 'HASH';
-	return join '&', @pairs;
-}
+our @EXPORT_OK = qw(form_urlencode form_urldecode oauth_request_wrap);
 
 sub form_urldecode {
 	my $string = shift;
-	my @form = map { $_ = '' unless defined $_; s/\+/ /g; $_ = uri_unescape $_; utf8::decode $_; $_ }
-		map { my ($k, $v) = split /=/, $_, 2; ($k, $v) } split /&/, $string;
+	my @sequences = grep { length } split /&/, $string;
+	my @form = map { my ($k, $v) = split /=/, $_, 2; ($k, $v) } @sequences;
+	foreach my $elem (@form) {
+		$elem = '' unless defined $elem;
+		$elem =~ s/\+/ /g;
+		$elem = uri_unescape $elem;
+		utf8::decode $elem;
+	}
 	return \@form;
 }
 
-sub oauth_request_from {
+sub form_urlencode {
+	my $form = shift;
+	my @pairs;
+	if (ref $form eq 'ARRAY') {
+		croak 'Form to urlencode must be even-sized' if @$form % 2;
+		@pairs = pairs @$form;
+	} elsif (ref $form eq 'HASH') {
+		@pairs = sort { $a->[0] cmp $b->[0] } pairs %$form;
+	} else {
+		croak 'Form to urlencode must be hash or array reference';
+	}
+	my @sequences;
+	local $URI::Escape::escapes{' '} = '+';
+	foreach my $pair (@pairs) {
+		my $key = $pair->[0];
+		my @values = ref $pair->[1] eq 'ARRAY' ? @{$pair->[1]} : $pair->[1];
+		$_ = uri_escape_utf8 $_ for $key, @values;
+		push @sequences, "$key=$_" for @values;
+	}
+	return join '&', @sequences;
+}
+
+sub oauth_request_wrap {
 	my $class = ref $_[0] ? undef : shift;
 	my $proto = shift;
 	my %args;
 	if (blessed $proto) { # Request object
 		return $proto if Role::Tiny::does_role($proto, 'WWW::OAuth::Request'); # already in container
-		if (!defined $class) {
+		unless (defined $class) {
 			if ($proto->isa('HTTP::Request')) {
 				$class = 'HTTP_Request';
 			} elsif ($proto->isa('Mojo::Message')) {
@@ -62,7 +68,7 @@ sub oauth_request_from {
 		$class = 'Basic' unless defined $class;
 		%args = %$proto;
 	} else {
-		croak 'No request or request parameters found';
+		croak 'No request or request parameters passed';
 	}
 	
 	$class = "WWW::OAuth::Request::$class" unless $class =~ /::/;
@@ -81,27 +87,60 @@ WWW::OAuth::Util - Utility functions for WWW::OAuth
 
 =head1 SYNOPSIS
 
+ use WWW::OAuth::Util 'form_urldecode', 'form_urlencode';
+ my $body_string = form_urlencode({foo => 'a b c', bar => [1, 2, 3]});
+ # bar=1&bar=2&bar=3&foo=a+b+c
+ my $ordered_pairs = form_urldecode($body_string);
+ # ['bar', '1', 'bar', '2', 'bar', '3', 'foo', 'a b c']
+ 
+ use WWW::OAuth::Util 'oauth_request_wrap';
+ my $container = oauth_request_wrap($http_request);
+
 =head1 DESCRIPTION
+
+L<WWW::OAuth::Util> contains utility functions for use with L<WWW::OAuth>. All
+functions are exportable on demand.
 
 =head1 FUNCTIONS
 
-=head2 oauth_request_from
+=head2 form_urldecode
 
- my $container = oauth_request_from($http_request);
- my $container = oauth_request_from({ method => 'GET', url => $url });
- my $container = oauth_request_from(Basic => { method => 'POST', url => $url, content => $content });
+ my $param_pairs = form_urldecode($body_string);
+
+Decodes an C<application/x-www-form-urlencoded> string and returns an
+even-sized arrayref of key-value pairs. Order is preserved and repeated keys
+are not combined.
+
+=head2 form_urlencode
+
+ my $body_string = form_urlencode([foo => 2, bar => 'baz', foo => 1]);
+ # foo=2&bar=baz&foo=1
+ my $body_string = form_urlencode({foo => [2, 1], bar => 'baz'});
+ # bar=baz&foo=2&foo=1
+
+Converts a hash or array reference into an C<application/x-www-form-urlencoded>
+string suitable for a query string or request body. If a value is an array
+reference, the key is repeated with each value. Order is preserved if
+parameters are passed in an array reference; the parameters are sorted by key
+for consistency if passed in a hash reference.
+
+=head2 oauth_request_wrap
+
+ my $container = oauth_request_wrap($http_request);
+ my $container = oauth_request_wrap({ method => 'GET', url => $url });
+ my $container = oauth_request_wrap(Basic => { method => 'POST', url => $url, content => $content });
 
 Constructs an HTTP request container performing the L<WWW::OAuth::Request>
 role. The input should be a recognized request object or hashref of arguments
-optionally preceded by a container class name. The class name will be appended
-to C<WWW::OAuth::Request::> if it does not contain C<::>. Currently,
+optionally preceded by a container class name. The class name is appended to
+C<WWW::OAuth::Request::> if it does not contain C<::>. Currently,
 L<HTTP::Request> and L<Mojo::Message::Request> objects are recognized, and
-hashrefs will be used to construct a L<WWW::OAuth::Request::Basic> object if
-no container class is specified.
+hashrefs are used to construct a L<WWW::OAuth::Request::Basic> object if no
+container class is specified.
 
  # Longer forms to construct WWW::OAuth::Request::HTTP_Request
- my $container = oauth_request_from(HTTP_Request => $http_request);
- my $container = oauth_request_from(HTTP_Request => { request => $http_request });
+ my $container = oauth_request_wrap(HTTP_Request => $http_request);
+ my $container = oauth_request_wrap(HTTP_Request => { request => $http_request });
 
 =head1 BUGS
 
@@ -121,4 +160,4 @@ This is free software, licensed under:
 
 =head1 SEE ALSO
 
-L<HTTP::Request>, L<Mojo::Message::Request>
+L<URI>, L<URL Living Standard|https://url.spec.whatwg.org/#application/x-www-form-urlencoded>

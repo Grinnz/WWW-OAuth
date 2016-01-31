@@ -27,8 +27,7 @@ my %WriteMakefileArgs = (
     "Role::Tiny" => "2.000000",
     "Scalar::Util" => 0,
     "URI" => 0,
-    "URI::Escape" => 0,
-    "URI::QueryParam" => 0
+    "URI::Escape" => 0
   },
   "TEST_REQUIRES" => {
     "Data::Section::Simple" => 0,
@@ -56,8 +55,7 @@ my %FallbackPrereqs = (
   "Scalar::Util" => 0,
   "Test::More" => "0.88",
   "URI" => 0,
-  "URI::Escape" => 0,
-  "URI::QueryParam" => 0
+  "URI::Escape" => 0
 );
 
 

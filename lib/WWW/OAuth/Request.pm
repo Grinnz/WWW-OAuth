@@ -1,8 +1,8 @@
 package WWW::OAuth::Request;
 
-use Encode 'decode', 'encode';
+use List::Util 'pairgrep';
 use URI;
-use URI::QueryParam;
+use WWW::OAuth::Util 'form_urldecode', 'form_urlencode';
 
 use Role::Tiny;
 
@@ -14,26 +14,24 @@ sub query_pairs { [URI->new(shift->url)->query_form] }
 
 sub remove_query_params {
 	my $self = shift;
+	my %delete_names = map { ($_ => 1) } @_;
 	my $url = URI->new($self->url);
-	$url->query_param_delete($_) for @_;
+	my @params = pairgrep { !exists $delete_names{$a} } $url->query_form;
+	$url->query_form(\@params);
 	$self->url("$url");
 	return $self;
 }
 
 sub body_pairs {
 	my $self = shift;
-	my $dummy = URI->new;
-	$dummy->query($self->content);
-	return [map { decode 'UTF-8', $_ } $dummy->query_form];
+	return form_urldecode $self->content;
 }
 
 sub remove_body_params {
 	my $self = shift;
-	my $dummy = URI->new;
-	$dummy->query($self->content);
-	$dummy->query_param_delete(encode 'UTF-8', $_) for @_;
-	my $content = $dummy->query;
-	$self->content(defined $content ? $content : '');
+	my %delete_names = map { ($_ => 1) } @_;
+	my @params = pairgrep { !exists $delete_names{$a} } @{$self->body_pairs};
+	$self->content(form_urlencode \@params);
 	return $self;
 }
 

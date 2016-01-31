@@ -47,7 +47,6 @@
             "Scalar::Util" : "0",
             "URI" : "0",
             "URI::Escape" : "0",
-            "URI::QueryParam" : "0",
             "perl" : "5.008001"
          }
       },

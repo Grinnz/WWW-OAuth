@@ -6,7 +6,6 @@ use Class::Tiny::Chained 'request';
 
 use Carp 'croak';
 use Scalar::Util 'blessed';
-use URI::QueryParam;
 
 use Role::Tiny::With;
 with 'WWW::OAuth::Request';
@@ -39,13 +38,6 @@ sub content_is_form {
 }
 
 sub query_pairs { [shift->request->uri->query_form] }
-
-sub remove_query_params {
-	my $self = shift;
-	my $uri = $self->request->uri;
-	$uri->query_param_delete($_) for @_;
-	return $self;
-}
 
 sub set_header { $_[0]->request->header(@_[1,2]); $_[0] }
 

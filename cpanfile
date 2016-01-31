@@ -10,7 +10,6 @@ requires 'Role::Tiny' => '2.000000';
 requires 'Scalar::Util';
 requires 'URI';
 requires 'URI::Escape';
-requires 'URI::QueryParam';
 test_requires 'Data::Section::Simple';
 test_requires 'JSON::PP';
 test_requires 'Test::More' => '0.88';

@@ -3,8 +3,6 @@ package WWW::OAuth::Request::Mojo;
 use strict;
 use warnings;
 use Class::Tiny::Chained 'request';
-use Mojo::Parameters;
-use Mojo::URL;
 
 use Carp 'croak';
 use Scalar::Util 'blessed';
@@ -24,6 +22,7 @@ sub method {
 sub url {
 	my $self = shift;
 	return $self->request->url->to_string unless @_;
+	require Mojo::URL;
 	$self->request->url(Mojo::URL->new(shift));
 	return $self;
 }
@@ -52,10 +51,11 @@ sub remove_query_params {
 	return $self;
 }
 
-sub body_pairs { Mojo::Parameters->new(shift->request->body)->pairs }
+sub body_pairs { require Mojo::Parameters; Mojo::Parameters->new(shift->request->body)->pairs }
 
 sub remove_body_params {
 	my $self = shift;
+	require Mojo::Parameters;
 	my $params = Mojo::Parameters->new($self->request->body);
 	$params->remove($_) for @_;
 	$self->request->body($params->to_string);

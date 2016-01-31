@@ -1,5 +1,7 @@
 package WWW::OAuth::Util;
 
+use strict;
+use warnings;
 use Carp 'croak';
 use Exporter 'import';
 use List::Util 'pairs';
@@ -42,7 +44,7 @@ sub form_urlencode {
 	foreach my $pair (@pairs) {
 		my $key = $pair->[0];
 		my @values = ref $pair->[1] eq 'ARRAY' ? @{$pair->[1]} : $pair->[1];
-		$_ = uri_escape_utf8 $_ for $key, @values;
+		$_ = defined ? uri_escape_utf8 $_ : '' for $key, @values;
 		push @sequences, "$key=$_" for @values;
 	}
 	return join '&', @sequences;
@@ -57,14 +59,14 @@ sub oauth_request {
 		unless (defined $class) {
 			if ($proto->isa('HTTP::Request')) {
 				$class = 'HTTP_Request';
-			} elsif ($proto->isa('Mojo::Message')) {
+			} elsif ($proto->isa('Mojo::Message::Request')) {
 				$class = 'Mojo';
 			} else {
 				$class = blessed $proto;
 				$class =~ s/::/_/g;
 			}
 		}
-		%args = (request => $req);
+		%args = (request => $proto);
 	} elsif (ref $proto eq 'HASH') { # Hashref
 		$class = 'Basic' unless defined $class;
 		%args = %$proto;

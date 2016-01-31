@@ -94,6 +94,7 @@ WWW::OAuth::Request::Mojo - HTTP Request container for Mojo::Message::Request
 
 L<WWW::OAuth::Request::Mojo> is a request container for L<WWW::OAuth> that
 wraps a L<Mojo::Message::Request> object, which is used by L<Mojo::UserAgent>.
+It performs the role L<WWW::OAuth::Request>.
 
 =head1 ATTRIBUTES
 

@@ -79,7 +79,8 @@ WWW::OAuth::Request::HTTP_Request - HTTP Request container for HTTP::Request
 
 L<WWW::OAuth::Request::HTTP_Request> is a request container for L<WWW::OAuth>
 that wraps a L<HTTP::Request> object, which can be used by several user-agents
-like L<LWP::UserAgent>, L<HTTP::Thin>, and L<Net::Async::HTTP>.
+like L<LWP::UserAgent>, L<HTTP::Thin>, and L<Net::Async::HTTP>. It performs the
+role L<WWW::OAuth::Request>.
 
 =head1 ATTRIBUTES
 

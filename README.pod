@@ -91,29 +91,6 @@ your application on behalf of this user.
  $oauth->token($access_token);
  $oauth->token_secret($access_secret);
 
-=head1 HTTP REQUEST CONTAINERS
-
-Request containers provide a unified interface for L</"authenticate"> to parse
-and update HTTP requests. They must perform the L<Role::Tiny> role
-L<WWW::OAuth::Request>. Custom container classes can be instantiated
-directly or via L<WWW::OAuth::Util/"oauth_request">.
-
-=head2 Basic
-
-L<WWW::OAuth::Request::Basic> contains the request attributes directly, for
-user agents such as L<HTTP::Tiny> that do not use request objects.
-
-=head2 HTTP_Request
-
-L<WWW::OAuth::Request::HTTP_Request> wraps a L<HTTP::Request> object, which
-is compatible with several user agents including L<LWP::UserAgent>,
-L<HTTP::Thin>, and L<Net::Async::HTTP>.
-
-=head2 Mojo
-
-L<WWW::OAuth::Request::Mojo> wraps a L<Mojo::Message::Request> object,
-which is used by L<Mojo::UserAgent> via L<Mojo::Transaction>.
-
 =head1 ATTRIBUTES
 
 L<WWW::OAuth> implements the following attributes.
@@ -175,6 +152,29 @@ then updates the request URL, content, and headers as needed to construct and
 sign the request for OAuth 1.0. OAuth parameters (starting with C<oauth_>) may
 be optionally specified in a hashref, and will override any generated or
 existing OAuth parameters of the same name. Returns the container object.
+
+=head1 HTTP REQUEST CONTAINERS
+
+Request containers provide a unified interface for L</"authenticate"> to parse
+and update HTTP requests. They must perform the L<Role::Tiny> role
+L<WWW::OAuth::Request>. Custom container classes can be instantiated
+directly or via L<WWW::OAuth::Util/"oauth_request">.
+
+=head2 Basic
+
+L<WWW::OAuth::Request::Basic> contains the request attributes directly, for
+user agents such as L<HTTP::Tiny> that do not use request objects.
+
+=head2 HTTP_Request
+
+L<WWW::OAuth::Request::HTTP_Request> wraps a L<HTTP::Request> object, which
+is compatible with several user agents including L<LWP::UserAgent>,
+L<HTTP::Thin>, and L<Net::Async::HTTP>.
+
+=head2 Mojo
+
+L<WWW::OAuth::Request::Mojo> wraps a L<Mojo::Message::Request> object,
+which is used by L<Mojo::UserAgent> via L<Mojo::Transaction>.
 
 =head1 BUGS
 

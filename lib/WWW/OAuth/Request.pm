@@ -46,11 +46,12 @@ WWW::OAuth::Request - HTTP Request container role
 =head1 DESCRIPTION
 
 L<WWW::OAuth::Request> is a L<Role::Tiny> role that provides a consistent
-interface to L<WWW::OAuth> for parsing and authenticating requests.
+interface to L<WWW::OAuth> for parsing and authenticating requests. See
+L<WWW::OAuth/"HTTP REQUEST CONTAINERS"> for specifics.
 
 =head1 METHODS
 
-L<WWW::OAuth::Request> composes or requires the following methods.
+L<WWW::OAuth::Request> implements or requires the following methods.
 
 =head2 body_pairs
 

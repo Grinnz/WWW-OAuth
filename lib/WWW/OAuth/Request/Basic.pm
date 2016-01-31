@@ -73,11 +73,12 @@ WWW::OAuth::Request::Basic - HTTP Request container for HTTP::Tiny
 
 L<WWW::OAuth::Request::Basic> is a request container for L<WWW::OAuth> that
 stores the request parameters directly, for use with user-agents that do not
-use request objects like L<HTTP::Tiny>.
+use request objects like L<HTTP::Tiny>. It performs the role
+L<WWW::OAuth::Request>.
 
 =head1 ATTRIBUTES
 
-L<WWW::OAuth::Request::Basic> has the following attributes.
+L<WWW::OAuth::Request::Basic> implements the following attributes.
 
 =head2 content
 

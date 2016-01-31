@@ -295,9 +295,9 @@ L<WWW::OAuth> implements the following methods.
 
 Wraps the HTTP request in a container with L<WWW::OAuth::Util/"oauth_request">,
 then updates the request URL, content, and headers as needed to construct and
-sign the request for OAuth 1.0. OAuth parameters may be optionally specified in
-a hashref, and will override any generated or existing OAuth parameters of the
-same name. Returns the container object.
+sign the request for OAuth 1.0. OAuth parameters (starting with C<oauth_>) may
+be optionally specified in a hashref, and will override any generated or
+existing OAuth parameters of the same name. Returns the container object.
 
 =head1 BUGS
 

@@ -12,7 +12,7 @@ BEGIN {
 	plan skip_all => 'HTTP::Tiny is required to test requests'
 		unless eval { require_module 'HTTP::Tiny'; 1 };
 	plan skip_all => 'LWP::UserAgent is required to test requests'
-		unless eval { require_module $_ for 'LWP::UserAgent', 'HTTP::Message'; 1 };
+		unless eval { require_module $_ for 'LWP::UserAgent', 'HTTP::Request'; 1 };
 	Mojolicious::Lite->import;
 }
 
@@ -38,6 +38,8 @@ unless ($pid) { # child
 	exit;
 }
 
+sleep 0.25;
+
 my $req = oauth_request({method => 'GET', url => "http://127.0.0.1:$port"});
 my $res = $req->request_with(HTTP::Tiny->new);
 ok $res->{success}, 'request succeeded';
@@ -56,5 +58,6 @@ ok $tx->success, 'request succeeded';
 is $tx->res->body, 'foo', 'got response';
 
 $ua->get("http://127.0.0.1:$port/stop");
+waitpid $pid, 0;
 
 done_testing;

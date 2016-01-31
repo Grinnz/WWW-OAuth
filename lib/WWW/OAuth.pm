@@ -36,8 +36,10 @@ sub authenticate {
 	croak 'Client ID and secret are required to authenticate'
 		unless defined $client_id and defined $client_secret;
 	
-	croak 'RSA-SHA1 signature method requires an object with a "sign" method' if $signature_method eq 'RSA-SHA1';
-	$signature_method = 'RSA-SHA1' if blessed $signature_method and $signature_method->can('sign');
+	croak 'RSA-SHA1 signature method requires a coderef or an object with a "sign" method'
+		if $signature_method eq 'RSA-SHA1';
+	$signature_method = 'RSA-SHA1' if (blessed $signature_method and $signature_method->can('sign'))
+		or (!blessed $signature_method and ref $signature_method eq 'CODE');
 	my $sign = $signature_methods{$signature_method};
 	croak "Unknown signature method $signature_method" unless defined $sign;
 	
@@ -104,16 +106,19 @@ sub _signature_hmac_sha1 {
 sub _signature_rsa_sha1 {
 	my ($self, $req, $oauth_params) = @_;
 	my $base_str = _signature_base_string($req, $oauth_params);
-	return $self->signature_method->sign($base_str);
+	my $signer = $self->signature_method;
+	return $signer->sign($base_str) if blessed $signer; # object
+	return $signer->($base_str); # code ref
 }
 
 sub _signature_base_string {
 	my ($req, $oauth_params) = @_;
 	
-	my @encoded_params = map { uri_escape_utf8($_) } (@{$req->query_pairs}, %$oauth_params);
-	push @encoded_params, map { uri_escape_utf8($_) } @{$req->body_pairs} if $req->content_is_form;
-	my @sorted_pairs = sort { ($a->[0] cmp $b->[0]) or ($a->[1] cmp $b->[1]) } pairs @encoded_params;
-	my $params_str = join '&', map { $_->[0] . '=' . $_->[1] } @sorted_pairs;
+	my @all_params = (@{$req->query_pairs}, %$oauth_params);
+	push @all_params, @{$req->body_pairs} if $req->content_is_form;
+	my @pairs = pairs map { uri_escape_utf8 $_ } @all_params;
+	@pairs = sort { ($a->[0] cmp $b->[0]) or ($a->[1] cmp $b->[1]) } @pairs;
+	my $params_str = join '&', map { $_->[0] . '=' . $_->[1] } @pairs;
 	
 	my $base_url = URI->new($req->url);
 	$base_url->query(undef);
@@ -256,9 +261,9 @@ requests).
  my $method = $oauth->signature_method;
  $oauth     = $oauth->signature_method($method);
 
-Signature method, can be C<PLAINTEXT>, C<HMAC-SHA1>, or an object that
-implements the C<RSA-SHA1> method with a C<sign> method like
-L<Crypt::OpenSSL::RSA>. Defaults to C<HMAC-SHA1>.
+Signature method, can be C<PLAINTEXT>, C<HMAC-SHA1>, a coderef that implements
+the C<RSA-SHA1> method, or an object that implements the C<RSA-SHA1> method
+with a C<sign> method like L<Crypt::OpenSSL::RSA>. Defaults to C<HMAC-SHA1>.
 
 =head1 METHODS
 

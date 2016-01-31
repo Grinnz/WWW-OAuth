@@ -133,9 +133,9 @@ requests).
  my $method = $oauth->signature_method;
  $oauth     = $oauth->signature_method($method);
 
-Signature method, can be C<PLAINTEXT>, C<HMAC-SHA1>, or an object that
-implements the C<RSA-SHA1> method with a C<sign> method like
-L<Crypt::OpenSSL::RSA>. Defaults to C<HMAC-SHA1>.
+Signature method, can be C<PLAINTEXT>, C<HMAC-SHA1>, a coderef that implements
+the C<RSA-SHA1> method, or an object that implements the C<RSA-SHA1> method
+with a C<sign> method like L<Crypt::OpenSSL::RSA>. Defaults to C<HMAC-SHA1>.
 
 =head1 METHODS
 

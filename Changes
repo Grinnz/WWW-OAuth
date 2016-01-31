@@ -1,4 +1,5 @@
 {{$NEXT}}
+  - Allow RSA-SHA1 signature method to be specified as a coderef
 
 0.001     2016-01-31 02:53:01 EST
   - First release

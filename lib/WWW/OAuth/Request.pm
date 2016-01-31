@@ -108,7 +108,7 @@ matching the specified key(s).
 
  $req = $req->remove_query_params('foo', 'bar');
 
-Remove query parameters from L</"url"> matching the specified keys.
+Remove query parameters from L</"url"> matching the specified key(s).
 
 =head2 request_with
 

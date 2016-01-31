@@ -6,6 +6,7 @@ use Class::Tiny::Chained 'method', 'url', 'content', { headers => sub { {} } };
 
 use Carp 'croak';
 use Scalar::Util 'blessed';
+use WWW::OAuth::Util 'form_urlencode';
 
 use Role::Tiny::With;
 with 'WWW::OAuth::Request';
@@ -41,6 +42,13 @@ sub header {
 	my @existing = grep { lc $_ eq lc $name } keys %$headers;
 	delete @$headers{@existing} if @existing;
 	$headers->{$name} = $value;
+	return $self;
+}
+
+sub set_form {
+	my ($self, $form) = @_;
+	$self->header('Content-Type' => 'application/x-www-form-urlencoded');
+	$self->content(form_urlencode $form);
 	return $self;
 }
 
@@ -119,6 +127,16 @@ C<application/x-www-form-urlencoded>.
  $req       = $req->header(Authorization => 'Basic foobar');
 
 Set or return a request header in L</"headers">.
+
+=head2 set_form
+
+ $req = $req->set_form({foo => 'bar'});
+
+Convenience method to set L</"content"> to a urlencoded form. Equivalent to:
+
+ use WWW::OAuth::Util 'form_urlencode';
+ $req->header('Content-Type' => 'application/x-www-form-urlencoded');
+ $req->content(form_urlencode $form);
 
 =head2 request_with
 

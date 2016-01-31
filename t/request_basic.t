@@ -44,4 +44,10 @@ is_deeply $req->body_pairs, ['foo', '☃', 'foo', '❤', '❤', 'a b c', 'baz', 
 $req->remove_body_params('foo','❤');
 is_deeply $req->body_pairs, ['baz', '0'], 'Body parameters were removed';
 
+$req->header('Content-Type' => '');
+$req->content('');
+$req->set_form([foo => 'a b c']);
+is $req->content, 'foo=a+b+c', 'Set form content';
+ok $req->content_is_form, 'content is a form';
+
 done_testing;

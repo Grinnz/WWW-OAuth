@@ -12,4 +12,8 @@ requires 'URI::Escape';
 test_requires 'Data::Section::Simple';
 test_requires 'JSON::PP';
 test_requires 'Test::More' => '0.88';
+test_requires 'Test::Requires';
+author_requires 'HTTP::Request';
 author_requires 'HTTP::Tiny' => '0.014';
+author_requires 'LWP::UserAgent';
+author_requires 'Mojolicious' => '6.0';

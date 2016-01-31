@@ -13,7 +13,7 @@ use MIME::Base64 'encode_base64';
 use Scalar::Util 'blessed';
 use URI;
 use URI::Escape 'uri_escape_utf8';
-use WWW::OAuth::Util 'oauth_request_wrap';
+use WWW::OAuth::Util 'oauth_request';
 
 our $VERSION = '0.001';
 
@@ -27,7 +27,7 @@ sub authenticate {
 	my $self = shift;
 	my @req_args = (shift);
 	push @req_args, shift unless ref $req_args[0];
-	my $req = oauth_request_wrap(@req_args);
+	my $req = oauth_request(@req_args);
 	my $extra_params = shift;
 	
 	my ($client_id, $client_secret, $token, $token_secret, $signature_method) =
@@ -219,7 +219,7 @@ your application on behalf of this user.
 Request containers provide a unified interface for L</"authenticate"> to parse
 and update HTTP requests. They must perform the L<Role::Tiny> role
 L<WWW::OAuth::Request>. Custom container classes can be instantiated
-directly or via L<WWW::OAuth::Util/"oauth_request_wrap">.
+directly or via L<WWW::OAuth::Util/"oauth_request">.
 
 =head2 Basic
 
@@ -293,7 +293,7 @@ L<WWW::OAuth> implements the following methods.
  my $container = $oauth->authenticate($http_request, \%oauth_params);
  my $container = $oauth->authenticate(Basic => { method => 'GET', url => $url }, \%oauth_params);
 
-Wraps the HTTP request in a container with L<WWW::OAuth::Util/"oauth_request_wrap">,
+Wraps the HTTP request in a container with L<WWW::OAuth::Util/"oauth_request">,
 then updates the request URL, content, and headers as needed to construct and
 sign the request for OAuth 1.0. OAuth parameters may be optionally specified in
 a hashref, and will override any generated or existing OAuth parameters of the

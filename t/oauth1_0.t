@@ -9,7 +9,7 @@ use MIME::Base64 'encode_base64';
 use URI;
 use URI::Escape 'uri_escape_utf8', 'uri_unescape';
 use WWW::OAuth;
-use WWW::OAuth::Util 'form_urldecode', 'form_urlencode', 'oauth_request_wrap';
+use WWW::OAuth::Util 'form_urldecode', 'form_urlencode', 'oauth_request';
 
 my $api_key = $ENV{TWITTER_API_KEY};
 my $api_secret = $ENV{TWITTER_API_SECRET};
@@ -63,10 +63,10 @@ if ($test_online) {
 	chomp($response = get_data_section 'request_token_response');
 }
 
-my $response_params = {@{form_urldecode($response)}};
-is $response_params->{oauth_callback_confirmed}, 'true', 'OAuth callback was confirmed';
-ok defined(my $request_token = $response_params->{oauth_token}), 'got request token';
-ok defined(my $request_secret = $response_params->{oauth_token_secret}), 'got request secret';
+my %response_params = @{form_urldecode($response)};
+is $response_params{oauth_callback_confirmed}, 'true', 'OAuth callback was confirmed';
+ok defined(my $request_token = $response_params{oauth_token}), 'got request token';
+ok defined(my $request_secret = $response_params{oauth_token_secret}), 'got request secret';
 
 # Verify credentials request
 my $verify_url = $api_base_url . 'account/verify_credentials.json';
@@ -114,7 +114,7 @@ sub _request {
 			$req{headers}{'content-type'} = 'application/x-www-form-urlencoded';
 		}
 	}
-	return oauth_request_wrap(Basic => \%req);
+	return oauth_request(Basic => \%req);
 }
 
 sub _parse_oauth_header {

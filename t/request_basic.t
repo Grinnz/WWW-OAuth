@@ -1,0 +1,47 @@
+use strict;
+use warnings;
+use utf8;
+use Test::More;
+use WWW::OAuth::Util 'form_urlencode';
+
+use WWW::OAuth::Request::Basic;
+
+my $req = WWW::OAuth::Request::Basic->new;
+
+is_deeply $req->headers, {}, 'no headers';
+is $req->header('FooBar'), undef, 'header FooBar is not set';
+$req->header(FooBar => '☃');
+is $req->header('FooBar'), '☃', 'header FooBar is set';
+is $req->header('FOOBAR'), '☃', 'header FOOBAR is set';
+is $req->header('foobar'), '☃', 'header foobar is set';
+
+ok !$req->content_is_form, 'content is not a form';
+$req->header('content-type' => 'application/x-www-form-urlencoded');
+ok $req->content_is_form, 'content is a form';
+$req->header('content-type' => 'application/not-a-form');
+ok !$req->content_is_form, 'content is not a form';
+
+is $req->header('MultiFoo'), undef, 'header MultiFoo is not set';
+$req->header(MultiFoo => ['a', 'b', 'c']);
+is $req->header('MultiFoo'), 'a, b, c', 'header MultiFoo has multiple values';
+$req->header(MultiFoo => 'abc');
+is $req->header('MultiFoo'), 'abc', 'header MultiFoo has one value';
+
+$req->url('http://example.com');
+$req->content('');
+is_deeply $req->query_pairs, [], 'no query parameters';
+is_deeply $req->body_pairs, [], 'no body parameters';
+
+$req->url('http://example.com?' . form_urlencode [foo => ['☃', '❤'], '❤' => 'a b c', baz => 0]);
+is_deeply $req->query_pairs, ['foo', '☃', 'foo', '❤', '❤', 'a b c', 'baz', '0'], 'URL has query parameters';
+
+$req->remove_query_params('foo','❤');
+is_deeply $req->query_pairs, ['baz', '0'], 'Query parameters were removed';
+
+$req->content(form_urlencode [foo => ['☃', '❤'], '❤' => 'a b c', baz => 0]);
+is_deeply $req->body_pairs, ['foo', '☃', 'foo', '❤', '❤', 'a b c', 'baz', '0'], 'Request has body parameters';
+
+$req->remove_body_params('foo','❤');
+is_deeply $req->body_pairs, ['baz', '0'], 'Body parameters were removed';
+
+done_testing;

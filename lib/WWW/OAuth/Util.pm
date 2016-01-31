@@ -10,10 +10,11 @@ use URI::Escape 'uri_escape_utf8', 'uri_unescape';
 
 our $VERSION = '0.001';
 
-our @EXPORT_OK = qw(form_urlencode form_urldecode oauth_request_wrap);
+our @EXPORT_OK = qw(form_urlencode form_urldecode oauth_request);
 
 sub form_urldecode {
 	my $string = shift;
+	return [] unless defined $string;
 	my @sequences = grep { length } split /&/, $string;
 	my @form = map { my ($k, $v) = split /=/, $_, 2; ($k, $v) } @sequences;
 	foreach my $elem (@form) {
@@ -47,7 +48,7 @@ sub form_urlencode {
 	return join '&', @sequences;
 }
 
-sub oauth_request_wrap {
+sub oauth_request {
 	my $class = ref $_[0] ? undef : shift;
 	my $proto = shift;
 	my %args;
@@ -93,8 +94,8 @@ WWW::OAuth::Util - Utility functions for WWW::OAuth
  my $ordered_pairs = form_urldecode($body_string);
  # ['bar', '1', 'bar', '2', 'bar', '3', 'foo', 'a b c']
  
- use WWW::OAuth::Util 'oauth_request_wrap';
- my $container = oauth_request_wrap($http_request);
+ use WWW::OAuth::Util 'oauth_request';
+ my $container = oauth_request($http_request);
 
 =head1 DESCRIPTION
 
@@ -124,11 +125,11 @@ reference, the key is repeated with each value. Order is preserved if
 parameters are passed in an array reference; the parameters are sorted by key
 for consistency if passed in a hash reference.
 
-=head2 oauth_request_wrap
+=head2 oauth_request
 
- my $container = oauth_request_wrap($http_request);
- my $container = oauth_request_wrap({ method => 'GET', url => $url });
- my $container = oauth_request_wrap(Basic => { method => 'POST', url => $url, content => $content });
+ my $container = oauth_request($http_request);
+ my $container = oauth_request({ method => 'GET', url => $url });
+ my $container = oauth_request(Basic => { method => 'POST', url => $url, content => $content });
 
 Constructs an HTTP request container performing the L<WWW::OAuth::Request>
 role. The input should be a recognized request object or hashref of arguments
@@ -139,8 +140,8 @@ hashrefs are used to construct a L<WWW::OAuth::Request::Basic> object if no
 container class is specified.
 
  # Longer forms to construct WWW::OAuth::Request::HTTP_Request
- my $container = oauth_request_wrap(HTTP_Request => $http_request);
- my $container = oauth_request_wrap(HTTP_Request => { request => $http_request });
+ my $container = oauth_request(HTTP_Request => $http_request);
+ my $container = oauth_request(HTTP_Request => { request => $http_request });
 
 =head1 BUGS
 

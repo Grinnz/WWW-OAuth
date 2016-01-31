@@ -10,13 +10,13 @@ our $VERSION = '0.001';
 
 requires 'method', 'url', 'content', 'content_is_form', 'header', 'request_with';
 
-sub query_pairs { [URI->new(shift->url)->query_form] }
+sub query_pairs { [map { utf8::decode $_; $_ } URI->new(shift->url)->query_form] }
 
 sub remove_query_params {
 	my $self = shift;
 	my %delete_names = map { ($_ => 1) } @_;
 	my $url = URI->new($self->url);
-	my @params = pairgrep { !exists $delete_names{$a} } $url->query_form;
+	my @params = pairgrep { utf8::decode $a; !exists $delete_names{$a} } $url->query_form;
 	$url->query_form(\@params);
 	$self->url("$url");
 	return $self;

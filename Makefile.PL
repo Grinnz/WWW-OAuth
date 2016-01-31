@@ -31,7 +31,8 @@ my %WriteMakefileArgs = (
   "TEST_REQUIRES" => {
     "Data::Section::Simple" => 0,
     "JSON::PP" => 0,
-    "Test::More" => "0.88"
+    "Test::More" => "0.88",
+    "Test::Requires" => 0
   },
   "VERSION" => "0.001",
   "test" => {
@@ -52,6 +53,7 @@ my %FallbackPrereqs = (
   "Role::Tiny" => "2.000000",
   "Scalar::Util" => 0,
   "Test::More" => "0.88",
+  "Test::Requires" => 0,
   "URI" => 0,
   "URI::Escape" => 0
 );

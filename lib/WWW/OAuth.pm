@@ -15,7 +15,7 @@ use URI;
 use URI::Escape 'uri_escape_utf8';
 use WWW::OAuth::Util 'oauth_request';
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 my %signature_methods = (
 	'PLAINTEXT' => '_signature_plaintext',

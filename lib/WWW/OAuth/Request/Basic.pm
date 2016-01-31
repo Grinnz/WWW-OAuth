@@ -5,7 +5,6 @@ use warnings;
 use Class::Tiny::Chained 'method', 'url', 'content', { headers => sub { {} } };
 
 use Carp 'croak';
-use List::Util 'first';
 use Scalar::Util 'blessed';
 
 use Role::Tiny::With;
@@ -26,8 +25,14 @@ sub header {
 	croak 'No header to set/retrieve' unless defined $name;
 	my $headers = $self->headers;
 	unless (@_) {
-		# not sure why dummy variable is needed
-		my $key = first { lc(my $k = $_) eq lc $name } keys %$headers;
+		my $check_name = lc $name;
+		my $key;
+		foreach my $check_key (keys %$headers) {
+			if (lc $check_key eq $check_name) {
+				$key = $check_key;
+				last;
+			}
+		}
 		return undef unless defined $key;
 		my @values = ref $headers->{$key} eq 'ARRAY' ? @{$headers->{$key}} : $headers->{$key};
 		return join ', ', grep { defined } @values;

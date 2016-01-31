@@ -146,4 +146,3 @@ This is free software, licensed under:
 =head1 SEE ALSO
 
 L<HTTP::Tiny>
-

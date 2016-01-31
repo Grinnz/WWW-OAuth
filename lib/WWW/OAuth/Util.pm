@@ -44,7 +44,7 @@ sub form_urlencode {
 	foreach my $pair (@pairs) {
 		my $key = $pair->[0];
 		my @values = ref $pair->[1] eq 'ARRAY' ? @{$pair->[1]} : $pair->[1];
-		$_ = defined ? uri_escape_utf8 $_ : '' for $key, @values;
+		$_ = defined $_ ? uri_escape_utf8 $_ : '' for $key, @values;
 		push @sequences, "$key=$_" for @values;
 	}
 	return join '&', @sequences;

@@ -39,7 +39,84 @@ prepares and signs requests, leaving the rest up to your application. It can
 authenticate requests for L<LWP::UserAgent>, L<Mojo::UserAgent>, L<HTTP::Tiny>,
 and can be extended to operate on other types of requests.
 
+Some user agents can be configured to automatically authenticate each request
+with a L<WWW::OAuth> object.
+
+ # LWP::UserAgent
+ my $ua = LWP::UserAgent->new;
+ $ua->add_handler(request_prepare => sub { $oauth->authenticate($_[0]) });
+ 
+ # Mojo::UserAgent
+ my $ua = Mojo::UserAgent->new;
+ $ua->on(start => sub { $oauth->authenticate($_[1]->req) });
+
+=head1 RETRIEVING ACCESS TOKENS
+
+The process of retrieving access tokens and token secrets for authorization on
+behalf of a user may differ among various APIs, but it follows this general
+format (error checking is left as an exercise to the reader):
+
+ use WWW::OAuth;
+ use WWW::OAuth::Util 'form_urldecode';
+ use HTTP::Tiny;
+ my $ua = HTTP::Tiny->new;
+ my $oauth = WWW::OAuth->new(
+   client_id => $client_id,
+   client_secret => $client_secret,
+ );
+ 
+ # Request token request
+ my $res = $oauth->authenticate({ method => 'POST', url => $request_token_url },
+   { oauth_callback => $callback_url })->request_with($ua);
+ my %res_data = @{form_urldecode $res->{content}};
+ my ($request_token, $request_secret) = @res_data{'oauth_token','oauth_token_secret'};
+ 
+Now, the returned request token must be used to construct a URL for the user to
+go to and authorize your application. The exact method differs by API. The user
+will usually be redirected to the C<$callback_url> passed earlier after
+authorizing, with a verifier token that can be used to retrieve the access
+token and secret.
+ 
+ # Access token request
+ $oauth->token($request_token);
+ $oauth->token_secret($request_secret);
+ my $res = $oauth->authenticate({ method => 'POST', url => $access_token_url },
+   { oauth_verifier => $verifier_token })->request_with($ua);
+ my %res_data = @{form_urldecode $res->{content}};
+ my ($access_token, $access_secret) = @res_data{'oauth_token','oauth_token_secret'};
+ 
+Finally, the access token and secret can now be stored and used to authorize
+your application on behalf of this user.
+
+ $oauth->token($access_token);
+ $oauth->token_secret($access_secret);
+
+=head1 HTTP REQUEST CONTAINERS
+
+Request containers provide a unified interface for L</"authenticate"> to parse
+and update HTTP requests. They must perform the L<Role::Tiny> role
+L<WWW::OAuth::Request>. Custom container classes can be instantiated
+directly or via L<WWW::OAuth::Util/"oauth_request_wrap">.
+
+=head2 Basic
+
+L<WWW::OAuth::Request::Basic> contains the request attributes directly, for
+user agents such as L<HTTP::Tiny> that do not use request objects.
+
+=head2 HTTP_Request
+
+L<WWW::OAuth::Request::HTTP_Request> wraps a L<HTTP::Request> object, which
+is compatible with several user agents including L<LWP::UserAgent>,
+L<HTTP::Thin>, and L<Net::Async::HTTP>.
+
+=head2 Mojo
+
+L<WWW::OAuth::Request::Mojo> wraps a L<Mojo::Message::Request> object,
+which is used by L<Mojo::UserAgent> via L<Mojo::Transaction>.
+
 =head1 ATTRIBUTES
+
+L<WWW::OAuth> implements the following attributes.
 
 =head2 client_id
 
@@ -62,7 +139,7 @@ or consumer secret). Required for all requests.
  my $token = $oauth->token;
  $oauth    = $oauth->token($token);
 
-Request or access token used to identify resource owner. Leave empty for
+Request or access token used to identify resource owner. Leave undefined for
 temporary credentials requests (request token requests).
 
 =head2 token_secret
@@ -71,7 +148,8 @@ temporary credentials requests (request token requests).
  $oauth           = $oauth->token_secret($token_secret);
 
 Request or access token secret used to authenticate on behalf of resource
-owner. Leave empty for temporary credentials requests (request token requests).
+owner. Leave undefined for temporary credentials requests (request token
+requests).
 
 =head2 signature_method
 
@@ -84,6 +162,8 @@ L<Crypt::OpenSSL::RSA>. Defaults to C<HMAC-SHA1>.
 
 =head1 METHODS
 
+L<WWW::OAuth> implements the following methods.
+
 =head2 authenticate
 
  $container = $oauth->authenticate($container, \%oauth_params);
@@ -95,29 +175,6 @@ then updates the request URL, content, and headers as needed to construct and
 sign the request for OAuth 1.0. OAuth parameters may be optionally specified in
 a hashref, and will override any generated or existing OAuth parameters of the
 same name. Returns the container object.
-
-=head1 HTTP REQUEST CONTAINERS
-
-Request containers provide a unified interface for L</"authenticate"> to parse
-and update HTTP requests. They must perform the L<Role::Tiny> role
-L<WWW::OAuth::Request>. Custom container classes can be instantiated
-directly or via L</"request_from">.
-
-=head2 Basic
-
-L<WWW::OAuth::Request::Basic> contains the request attributes directly, for
-user agents such as L<HTTP::Tiny> that do not use request objects.
-
-=head2 HTTP_Request
-
-L<WWW::OAuth::Request::HTTP_Request> wraps a L<HTTP::Request> object, which
-is compatible with several user agents including L<LWP::UserAgent>,
-L<HTTP::Thin>, and L<Net::Async::HTTP>.
-
-=head2 Mojo
-
-L<WWW::OAuth::Request::Mojo> wraps a L<Mojo::Message::Request> object,
-which is used by L<Mojo::UserAgent> via L<Mojo::Transaction>.
 
 =head1 BUGS
 

@@ -2,7 +2,6 @@ requires 'perl' => '5.008001';
 requires 'Carp';
 requires 'Class::Tiny::Chained';
 requires 'Digest::SHA';
-requires 'Encode';
 requires 'List::Util' => '1.33';
 requires 'MIME::Base64';
 requires 'Module::Runtime';

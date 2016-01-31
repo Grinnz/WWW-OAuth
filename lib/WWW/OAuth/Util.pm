@@ -1,7 +1,6 @@
 package WWW::OAuth::Util;
 
 use Carp 'croak';
-use Encode 'decode';
 use Exporter 'import';
 use List::Util 'pairs';
 use Module::Runtime 'require_module';
@@ -37,7 +36,7 @@ sub form_urlencode {
 
 sub form_urldecode {
 	my $string = shift;
-	my @form = map { $_ = '' unless defined $_; s/\+/ /g; decode 'UTF-8', uri_unescape($_), Encode::FB_CROAK }
+	my @form = map { $_ = '' unless defined $_; s/\+/ /g; $_ = uri_unescape $_; utf8::decode $_; $_ }
 		map { my ($k, $v) = split /=/, $_, 2; ($k, $v) } split /&/, $string;
 	return \@form;
 }

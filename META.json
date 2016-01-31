@@ -39,7 +39,6 @@
             "Carp" : "0",
             "Class::Tiny::Chained" : "0",
             "Digest::SHA" : "0",
-            "Encode" : "0",
             "List::Util" : "1.33",
             "MIME::Base64" : "0",
             "Module::Runtime" : "0",

@@ -77,7 +77,7 @@ sub authenticate {
 	$oauth_params{oauth_signature} = $self->$sign($req, \%oauth_params, $client_secret, $token_secret);
 	
 	my $auth_str = join ', ', map { $_ . '="' . uri_escape_utf8($oauth_params{$_}) . '"' } sort keys %oauth_params;
-	$req->set_header(Authorization => "OAuth $auth_str");
+	$req->header(Authorization => "OAuth $auth_str");
 	return $req;
 }
 

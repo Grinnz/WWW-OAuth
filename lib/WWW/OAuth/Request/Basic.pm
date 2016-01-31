@@ -15,14 +15,29 @@ our $VERSION = '0.001';
 
 sub content_is_form {
 	my $self = shift;
-	my $content_type_key = first { lc $_ eq 'content-type' } keys %{$self->headers};
-	return 0 unless defined $content_type_key;
-	my $content_type = $self->headers->{$content_type_key};
+	my $content_type = $self->header('Content-Type');
 	return 0 unless defined $content_type and $content_type =~ m!application/x-www-form-urlencoded!i;
 	return 1;
 }
 
-sub set_header { $_[0]->headers->{lc $_[1]} = $_[2]; $_[0] }
+sub header {
+	my $self = shift;
+	my $name = shift;
+	croak 'No header to set/retrieve' unless defined $name;
+	my $headers = $self->headers;
+	unless (@_) {
+		# not sure why dummy variable is needed
+		my $key = first { lc(my $k = $_) eq lc $name } keys %$headers;
+		return undef unless defined $key;
+		my @values = ref $headers->{$key} eq 'ARRAY' ? @{$headers->{$key}} : $headers->{$key};
+		return join ', ', grep { defined } @values;
+	}
+	my $value = shift;
+	my @existing = grep { lc $_ eq lc $name } keys %$headers;
+	delete @$headers{@existing} if @existing;
+	$headers->{$name} = $value;
+	return $self;
+}
 
 sub request_with {
 	my ($self, $ua) = @_;
@@ -34,11 +49,78 @@ sub request_with {
 
 =head1 NAME
 
-WWW::OAuth::Request::Basic - Module abstract
+WWW::OAuth::Request::Basic - HTTP Request container for HTTP::Tiny
 
 =head1 SYNOPSIS
 
+ my $req = WWW::OAuth::Request::Basic->new(method => 'POST', url => $url, content => $content);
+ $req->request_with(HTTP::Tiny->new);
+
 =head1 DESCRIPTION
+
+L<WWW::OAuth::Request::Basic> is a request container for L<WWW::OAuth> that
+stores the request parameters directly, for use with user-agents that do not
+use request objects like L<HTTP::Tiny>.
+
+=head1 ATTRIBUTES
+
+L<WWW::OAuth::Request::Basic> has the following attributes.
+
+=head2 content
+
+ my $content = $req->content;
+ $req        = $req->content('foo=1&bar=2');
+
+Request content string.
+
+=head2 headers
+
+ my $headers = $req->headers;
+ $req        = $req->headers({});
+
+Hashref of request headers. Must be updated carefully as headers are
+case-insensitive. Values can be array references to specify multi-value
+headers.
+
+=head2 method
+
+ my $method = $req->method;
+ $req       = $req->method('GET');
+
+Request method.
+
+=head2 url
+
+ my $url = $req->url;
+ $req    = $req->url('http://example.com/api/');
+
+Request URL.
+
+=head1 METHODS
+
+L<WWW::OAuth::Request::Basic> composes all methods from L<WWW::OAuth::Request>,
+and implements the following new ones.
+
+=head2 content_is_form
+
+ my $bool = $req->content_is_form;
+
+Check whether L</"headers"> contains a C<Content-Type> header set to
+C<application/x-www-form-urlencoded>.
+
+=head2 header
+
+ my $header = $req->header('Content-Type');
+ $req       = $req->header(Authorization => 'Basic foobar');
+
+Set or return a request header in L</"headers">.
+
+=head2 request_with
+
+ my $res = $req->request_with(HTTP::Tiny->new);
+
+Run request with passed L<HTTP::Tiny> user-agent object, and return response
+hashref, as in L<HTTP::Tiny/"request">.
 
 =head1 BUGS
 
@@ -57,3 +139,6 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =head1 SEE ALSO
+
+L<HTTP::Tiny>
+

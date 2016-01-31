@@ -31,8 +31,8 @@ sub content {
 sub content_is_form {
 	my $self = shift;
 	return 0 if $self->request->content->is_multipart;
-	my $content_type = $self->request->headers->content_type || '';
-	return 0 unless $content_type =~ m!application/x-www-form-urlencoded!i;
+	my $content_type = $self->request->headers->content_type;
+	return 0 unless defined $content_type and $content_type =~ m!application/x-www-form-urlencoded!i;
 	return 1;
 }
 
@@ -55,7 +55,15 @@ sub remove_body_params {
 	return $self;
 }
 
-sub set_header { $_[0]->request->headers->header(@_[1,2]); $_[0] }
+sub header {
+	my $self = shift;
+	my $name = shift;
+	croak 'No header to set/retrieve' unless defined $name;
+	return $self->request->headers->header($name) unless @_;
+	my @values = ref $_[0] eq 'ARRAY' ? @{$_[0]} : $_[0];
+	$self->request->headers->header($name => @values);
+	return $self;
+}
 
 sub request_with {
 	my ($self, $ua, $cb) = @_;
@@ -68,11 +76,106 @@ sub request_with {
 
 =head1 NAME
 
-WWW::OAuth::Request::Mojo - Module abstract
+WWW::OAuth::Request::Mojo - HTTP Request container for Mojo::Message::Request
 
 =head1 SYNOPSIS
 
+ my $req = WWW::OAuth::Request::Mojo->new(request => $mojo_request);
+ my $tx = $req->request_with(Mojo::UserAgent->new);
+
 =head1 DESCRIPTION
+
+L<WWW::OAuth::Request::Mojo> is a request container for L<WWW::OAuth> that
+wraps a L<Mojo::Message::Request> object, which is used by L<Mojo::UserAgent>.
+
+=head1 ATTRIBUTES
+
+L<WWW::OAuth::Request::Mojo> implements the following attributes.
+
+=head2 request
+
+ my $mojo_request = $req->request;
+ $req             = $req->request($mojo_request);
+
+L<Mojo::Message::Request> object to authenticate.
+
+=head1 METHODS
+
+L<WWW::OAuth::Request::Mojo> composes all methods from L<WWW::OAuth::Request>,
+and implements the following new ones.
+
+=head2 body_pairs
+
+ my $pairs = $req->body_pairs;
+
+Return body parameters from L</"request"> as an even-sized arrayref of keys and
+values.
+
+=head2 content
+
+ my $content = $req->content;
+ $req        = $req->content('foo=1&bar=2');
+
+Set or return request content from L</"request">.
+
+=head2 content_is_form
+
+ my $bool = $req->content_is_form;
+
+Check whether L</"request"> has single-part content and a C<Content-Type>
+header of C<application/x-www-form-urlencoded>.
+
+=head2 header
+
+ my $header = $req->header('Content-Type');
+ $req       = $req->header(Authorization => 'foo bar');
+
+Set or return a request header from L</"request">.
+
+=head2 method
+
+ my $method = $req->method;
+ $req       = $req->method('GET');
+
+Set or return request method from L</"request">.
+
+=head2 query_pairs
+
+ my $pairs = $req->query_pairs;
+
+Return query parameters from L</"request"> as an even-sized arrayref of keys
+and values.
+
+=head2 remove_body_params
+
+ $req = $req->remove_body_params('foo', 'bar');
+
+Remove body parameters from L</"request"> matching the specified key(s).
+
+=head2 remove_query_params
+
+ $req = $req->remove_query_params('foo', 'bar');
+
+Remove query parameters from L</"request"> matching the specified key(s).
+
+=head2 request_with
+
+ my $tx = $req->request_with(Mojo::UserAgent->new);
+ $req->request_with(Mojo::UserAgent->new, sub {
+   my ($ua, $tx) = @_;
+   ...
+ });
+
+Run request with passed L<Mojo::UserAgent> user-agent object, and return
+L<Mojo::Transaction> object, as in L<Mojo::UserAgent/"start">. A callback can
+be passed to perform the request non-blocking.
+
+=head2 url
+
+ my $url = $req->url;
+ $req    = $req->url('http://example.com/api/');
+
+Set or return request URL from L</"request">.
 
 =head1 BUGS
 
@@ -91,3 +194,5 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =head1 SEE ALSO
+
+L<Mojo::UserAgent>

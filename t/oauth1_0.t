@@ -38,8 +38,10 @@ my $oauth_request = _request(POST => $oauth_request_url);
 
 my $auth = WWW::OAuth->new(client_id => $api_key, client_secret => $api_secret);
 $auth->authenticate($oauth_request, { oauth_callback => 'oob' });
+my $auth_header = $oauth_request->header('Authorization');
+ok defined $auth_header, 'Authorization header has been set';
 
-my $oauth_params = _parse_oauth_header($oauth_request->headers->{authorization} || '');
+my $oauth_params = _parse_oauth_header($auth_header);
 is $oauth_params->{oauth_consumer_key}, $api_key, 'oauth_consumer_key is set to API key';
 ok defined($oauth_params->{oauth_nonce}), 'oauth_nonce is set';
 is $oauth_params->{oauth_signature_method}, 'HMAC-SHA1', 'oauth_signature_method is set to HMAC-SHA1';
@@ -73,8 +75,10 @@ my $verify_request = _request(GET => $verify_url);
 $auth->token($token);
 $auth->token_secret($token_secret);
 $auth->authenticate($verify_request);
+$auth_header = $verify_request->header('Authorization');
+ok defined $auth_header, 'Authorization header has been set';
 
-$oauth_params = _parse_oauth_header($verify_request->headers->{authorization} || '');
+$oauth_params = _parse_oauth_header($auth_header);
 is $oauth_params->{oauth_consumer_key}, $api_key, 'oauth_consumer_key is set to API key';
 ok defined($oauth_params->{oauth_nonce}), 'oauth_nonce is set';
 is $oauth_params->{oauth_signature_method}, 'HMAC-SHA1', 'oauth_signature_method is set to HMAC-SHA1';
@@ -115,6 +119,7 @@ sub _request {
 
 sub _parse_oauth_header {
 	my $auth_header = shift;
+	return {} unless defined $auth_header;
 	my %oauth_params;
 	while ($auth_header =~ m/(\w+)="(.+?)"/g) {
 		$oauth_params{$1} = uri_unescape $2;

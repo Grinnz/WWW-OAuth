@@ -9,10 +9,12 @@ requires 'Role::Tiny' => '2.000000';
 requires 'Scalar::Util';
 requires 'URI' => '1.28';
 requires 'URI::Escape' => '3.26';
-test_requires 'Data::Section::Simple';
-test_requires 'JSON::PP';
-test_requires 'Test::More' => '0.88';
-test_requires 'Test::Requires';
+on test => sub {
+	requires 'Data::Section::Simple';
+	requires 'JSON::PP';
+	requires 'Test::More' => '0.88';
+	requires 'Test::Requires';
+};
 on develop => sub {
 	recommends 'HTTP::Request';
 	recommends 'HTTP::Tiny' => '0.014';

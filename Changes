@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.002     2016-01-31 23:22:14 EST
   - Allow RSA-SHA1 signature method to be specified as a coderef
   - Update dependencies and checks to fix test failures
 

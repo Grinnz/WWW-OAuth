@@ -59,7 +59,7 @@
       },
       "test" : {
          "requires" : {
-            "Data::Section::Simple" : "0",
+            "Data::Dumper" : "0",
             "JSON::PP" : "0",
             "Test::More" : "0.88",
             "Test::Requires" : "0"

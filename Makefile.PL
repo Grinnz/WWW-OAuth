@@ -29,7 +29,7 @@ my %WriteMakefileArgs = (
     "URI::Escape" => "3.26"
   },
   "TEST_REQUIRES" => {
-    "Data::Section::Simple" => 0,
+    "Data::Dumper" => 0,
     "JSON::PP" => 0,
     "Test::More" => "0.88",
     "Test::Requires" => 0
@@ -44,7 +44,7 @@ my %WriteMakefileArgs = (
 my %FallbackPrereqs = (
   "Carp" => 0,
   "Class::Tiny::Chained" => 0,
-  "Data::Section::Simple" => 0,
+  "Data::Dumper" => 0,
   "Digest::SHA" => 0,
   "JSON::PP" => 0,
   "List::Util" => "1.33",

@@ -10,7 +10,7 @@ requires 'Scalar::Util';
 requires 'URI' => '1.28';
 requires 'URI::Escape' => '3.26';
 on test => sub {
-	requires 'Data::Section::Simple';
+	requires 'Data::Dumper';
 	requires 'JSON::PP';
 	requires 'Test::More' => '0.88';
 	requires 'Test::Requires';

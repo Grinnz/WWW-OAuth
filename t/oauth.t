@@ -2,7 +2,6 @@ use strict;
 use warnings;
 use Test::More;
 use Data::Dumper 'Dumper';
-use Data::Section::Simple 'get_data_section';
 use Digest::SHA 'hmac_sha1';
 use JSON::PP 'decode_json';
 use MIME::Base64 'encode_base64';
@@ -61,7 +60,7 @@ if ($test_online) {
 	ok $res->{success}, 'OAuth request successful' or diag Dumper $res;
 	$response = $res->{content};
 } else {
-	chomp($response = get_data_section 'request_token_response');
+	$response = q{oauth_token=aaaaaaaaaaaaaaaaaaaaaaaaaaa&oauth_token_secret=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb&oauth_callback_confirmed=true};
 }
 
 my %response_params = @{form_urldecode($response)};
@@ -96,7 +95,9 @@ if ($test_online) {
 	ok $res->{success}, 'OAuth request successful' or diag Dumper $res;
 	$response = $res->{content};
 } else {
-	$response = get_data_section 'verify_credentials_response';
+	$response = <<'JSON_RESPONSE';
+{"id":36885345,"id_str":"36885345","name":"Grinnz","screen_name":"TheGrinnz","location":"CT","description":"nerrrrrd","url":"http:\/\/t.co\/IomLjiiycH","entities":{"url":{"urls":[{"url":"http:\/\/t.co\/IomLjiiycH","expanded_url":"http:\/\/grinnz.net","display_url":"grinnz.net","indices":[0,22]}]},"description":{"urls":[]}},"protected":false,"followers_count":73,"friends_count":74,"listed_count":3,"created_at":"Fri May 01 04:45:52 +0000 2009","favourites_count":0,"utc_offset":-18000,"time_zone":"Quito","geo_enabled":true,"verified":false,"statuses_count":365,"lang":"en","status":{"created_at":"Thu Aug 14 03:05:35 +0000 2014","id":499753673501990912,"id_str":"499753673501990912","text":"@GermanFatass vpssd down, at least one irc server still up","source":"\u003ca href=\"http:\/\/twitter.com\" rel=\"nofollow\"\u003eTwitter Web Client\u003c\/a\u003e","truncated":false,"in_reply_to_status_id":499752682178224128,"in_reply_to_status_id_str":"499752682178224128","in_reply_to_user_id":66307969,"in_reply_to_user_id_str":"66307969","in_reply_to_screen_name":"GermanFatass","geo":null,"coordinates":null,"place":null,"contributors":null,"retweet_count":0,"favorite_count":0,"entities":{"hashtags":[],"symbols":[],"user_mentions":[{"screen_name":"GermanFatass","name":"John ","id":66307969,"id_str":"66307969","indices":[0,13]}],"urls":[]},"favorited":false,"retweeted":false,"lang":"en"},"contributors_enabled":false,"is_translator":false,"is_translation_enabled":false,"profile_background_color":"C6E2EE","profile_background_image_url":"http:\/\/abs.twimg.com\/images\/themes\/theme2\/bg.gif","profile_background_image_url_https":"https:\/\/abs.twimg.com\/images\/themes\/theme2\/bg.gif","profile_background_tile":false,"profile_image_url":"http:\/\/pbs.twimg.com\/profile_images\/221712898\/tux_redhat80_normal.png","profile_image_url_https":"https:\/\/pbs.twimg.com\/profile_images\/221712898\/tux_redhat80_normal.png","profile_link_color":"1F98C7","profile_sidebar_border_color":"C6E2EE","profile_sidebar_fill_color":"DAECF4","profile_text_color":"663B12","profile_use_background_image":true,"has_extended_profile":false,"default_profile":false,"default_profile_image":false,"following":false,"follow_request_sent":false,"notifications":false}
+JSON_RESPONSE
 }
 
 my $response_data = decode_json $response;
@@ -139,9 +140,3 @@ sub _test_signature {
 }
 
 done_testing;
-
-__DATA__
-@@ request_token_response
-oauth_token=aaaaaaaaaaaaaaaaaaaaaaaaaaa&oauth_token_secret=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb&oauth_callback_confirmed=true
-@@ verify_credentials_response
-{"id":36885345,"id_str":"36885345","name":"Grinnz","screen_name":"TheGrinnz","location":"CT","description":"nerrrrrd","url":"http:\/\/t.co\/IomLjiiycH","entities":{"url":{"urls":[{"url":"http:\/\/t.co\/IomLjiiycH","expanded_url":"http:\/\/grinnz.net","display_url":"grinnz.net","indices":[0,22]}]},"description":{"urls":[]}},"protected":false,"followers_count":73,"friends_count":74,"listed_count":3,"created_at":"Fri May 01 04:45:52 +0000 2009","favourites_count":0,"utc_offset":-18000,"time_zone":"Quito","geo_enabled":true,"verified":false,"statuses_count":365,"lang":"en","status":{"created_at":"Thu Aug 14 03:05:35 +0000 2014","id":499753673501990912,"id_str":"499753673501990912","text":"@GermanFatass vpssd down, at least one irc server still up","source":"\u003ca href=\"http:\/\/twitter.com\" rel=\"nofollow\"\u003eTwitter Web Client\u003c\/a\u003e","truncated":false,"in_reply_to_status_id":499752682178224128,"in_reply_to_status_id_str":"499752682178224128","in_reply_to_user_id":66307969,"in_reply_to_user_id_str":"66307969","in_reply_to_screen_name":"GermanFatass","geo":null,"coordinates":null,"place":null,"contributors":null,"retweet_count":0,"favorite_count":0,"entities":{"hashtags":[],"symbols":[],"user_mentions":[{"screen_name":"GermanFatass","name":"John ","id":66307969,"id_str":"66307969","indices":[0,13]}],"urls":[]},"favorited":false,"retweeted":false,"lang":"en"},"contributors_enabled":false,"is_translator":false,"is_translation_enabled":false,"profile_background_color":"C6E2EE","profile_background_image_url":"http:\/\/abs.twimg.com\/images\/themes\/theme2\/bg.gif","profile_background_image_url_https":"https:\/\/abs.twimg.com\/images\/themes\/theme2\/bg.gif","profile_background_tile":false,"profile_image_url":"http:\/\/pbs.twimg.com\/profile_images\/221712898\/tux_redhat80_normal.png","profile_image_url_https":"https:\/\/pbs.twimg.com\/profile_images\/221712898\/tux_redhat80_normal.png","profile_link_color":"1F98C7","profile_sidebar_border_color":"C6E2EE","profile_sidebar_fill_color":"DAECF4","profile_text_color":"663B12","profile_use_background_image":true,"has_extended_profile":false,"default_profile":false,"default_profile_image":false,"following":false,"follow_request_sent":false,"notifications":false}

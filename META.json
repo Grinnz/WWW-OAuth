@@ -52,8 +52,8 @@
             "Module::Runtime" : "0",
             "Role::Tiny" : "2.000000",
             "Scalar::Util" : "0",
-            "URI" : "0",
-            "URI::Escape" : "0",
+            "URI" : "1.28",
+            "URI::Escape" : "3.26",
             "perl" : "5.008001"
          }
       },

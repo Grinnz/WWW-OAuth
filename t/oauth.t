@@ -24,6 +24,7 @@ if ($ENV{AUTHOR_TESTING} and defined $api_key and defined $api_secret and define
 	note 'Running online test for Twitter OAuth 1.0';
 	$test_online = 1;
 	require HTTP::Tiny;
+	HTTP::Tiny->VERSION('0.014');
 } else {
 	note 'Running offline test for Twitter OAuth 1.0; set AUTHOR_TESTING and TWITTER_API_KEY/TWITTER_API_SECRET/TWITTER_ACCESS_TOKEN/TWITTER_ACCESS_SECRET for online test';
 	$api_key = 'foo';

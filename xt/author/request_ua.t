@@ -40,7 +40,7 @@ unless ($pid) { # child
 sleep 0.25;
 
 SKIP: {
-	skip 'HTTP::Tiny is required to test basic requests'
+	skip 'HTTP::Tiny is required to test basic requests', 2
 		unless eval { use_module 'HTTP::Tiny' => '0.014'; 1 };
 	my $req = oauth_request({method => 'GET', url => "http://127.0.0.1:$port"});
 	my $res = $req->request_with(HTTP::Tiny->new);
@@ -49,7 +49,7 @@ SKIP: {
 }
 
 SKIP: {
-	skip 'LWP::UserAgent and HTTP::Request are required to test HTTP::Request requests'
+	skip 'LWP::UserAgent and HTTP::Request are required to test HTTP::Request requests', 2
 		unless eval { use_module $_ for 'LWP::UserAgent', 'HTTP::Request'; 1 };
 	my $http_req = oauth_request(HTTP::Request->new(GET => "http://127.0.0.1:$port"));
 	my $http_res = $http_req->request_with(LWP::UserAgent->new);

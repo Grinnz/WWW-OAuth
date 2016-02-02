@@ -5,6 +5,7 @@ use warnings;
 use Class::Tiny::Chained 'method', 'url', 'content', { headers => sub { {} } };
 
 use Carp 'croak';
+use List::Util 'first';
 use Scalar::Util 'blessed';
 use WWW::OAuth::Util 'form_urlencode';
 
@@ -26,14 +27,9 @@ sub header {
 	croak 'No header to set/retrieve' unless defined $name;
 	my $headers = $self->headers;
 	unless (@_) {
-		my $check_name = lc $name;
-		my $key;
-		foreach my $check_key (keys %$headers) {
-			if (lc $check_key eq $check_name) {
-				$key = $check_key;
-				last;
-			}
-		}
+		# workaround for TEMP bug in first/lc
+		my @names = keys %$headers;
+		my $key = first { lc $_ eq lc $name } @names;
 		return undef unless defined $key;
 		my @values = ref $headers->{$key} eq 'ARRAY' ? @{$headers->{$key}} : $headers->{$key};
 		return join ', ', grep { defined } @values;

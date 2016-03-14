@@ -19,6 +19,6 @@ on develop => sub {
 	requires 'HTTP::Request';
 	requires 'HTTP::Tiny' => '0.014';
 	requires 'LWP::UserAgent';
-	requires 'Mojolicious' => '6.0';
+	recommends 'Mojolicious' => '6.0';
 	requires 'Test::TCP';
 };

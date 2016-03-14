@@ -4,6 +4,7 @@ use warnings;
 use if $^O eq 'MSWin32', 'Test::More' => skip_all => 'Forking may be problematic on Windows';
 
 use Test::More;
+use Test::Requires { Mojolicious => '6.0' };
 use Test::TCP;
 use HTTP::Tiny;
 use HTTP::Request;

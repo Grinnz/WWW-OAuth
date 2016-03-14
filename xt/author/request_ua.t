@@ -1,12 +1,10 @@
 use strict;
 use warnings;
+
+use if $^O eq 'MSWin32', 'Test::More' => skip_all => 'Forking may be problematic on Windows';
+
 use Test::More;
 use Test::Requires { 'Mojolicious' => '6.0' };
-
-BEGIN {
-	plan skip_all => 'Forking may be problematic on Windows' if $^O eq 'MSWin32';
-}
-
 use Mojolicious::Lite;
 use Mojo::IOLoop;
 use Mojo::IOLoop::Server;

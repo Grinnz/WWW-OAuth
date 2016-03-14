@@ -9,3 +9,6 @@ perl:
   - "5.10"
   - "5.8"
 install: cpanm --quiet --installdeps --with-develop --with-recommends --notest .
+script:
+  - perl Makefile.PL && make test
+  - prove -lr xt/author/

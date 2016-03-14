@@ -16,8 +16,9 @@ on test => sub {
 	requires 'Test::Requires';
 };
 on develop => sub {
-	recommends 'HTTP::Request';
-	recommends 'HTTP::Tiny' => '0.014';
-	recommends 'LWP::UserAgent';
-	recommends 'Mojolicious' => '6.0';
+	requires 'HTTP::Request';
+	requires 'HTTP::Tiny' => '0.014';
+	requires 'LWP::UserAgent';
+	requires 'Mojolicious' => '6.0';
+	requires 'Test::TCP';
 };

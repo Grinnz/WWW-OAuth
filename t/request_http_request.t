@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use utf8;
 use Test::More;
-use Test::Requires 'HTTP::Request';
+use Test::Needs 'HTTP::Request';
 use WWW::OAuth::Util 'form_urlencode';
 
 use WWW::OAuth::Request::HTTP_Request;

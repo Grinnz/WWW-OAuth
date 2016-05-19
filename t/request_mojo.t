@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use utf8;
 use Test::More;
-use Test::Requires { 'Mojolicious' => '6.0' };
+use Test::Needs { 'Mojolicious' => '6.0' };
 
 use Mojo::Content::MultiPart;
 use Mojo::Message::Request;

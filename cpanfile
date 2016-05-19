@@ -13,7 +13,7 @@ on test => sub {
 	requires 'Data::Dumper';
 	requires 'JSON::PP';
 	requires 'Test::More' => '0.88';
-	requires 'Test::Requires';
+	requires 'Test::Needs';
 };
 on develop => sub {
 	requires 'HTTP::Request';

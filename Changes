@@ -1,5 +1,6 @@
 {{$NEXT}}
   - Use Test::TCP for author tests
+  - Use Test::Needs in place of Test::Requires for optional test dependencies
 
 0.002     2016-01-31 23:22:14 EST
   - Allow RSA-SHA1 signature method to be specified as a coderef

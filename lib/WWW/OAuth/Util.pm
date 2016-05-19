@@ -10,7 +10,7 @@ use Role::Tiny ();
 use Scalar::Util 'blessed';
 use URI::Escape 'uri_escape_utf8', 'uri_unescape';
 
-our $VERSION = '0.003';
+our $VERSION = '0.004';
 
 our @EXPORT_OK = qw(form_urlencode form_urldecode oauth_request);
 

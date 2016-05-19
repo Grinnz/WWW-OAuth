@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.003     2016-05-19 00:35:49 EDT
   - Use Test::TCP for author tests
   - Use Test::Needs in place of Test::Requires for optional test dependencies
 

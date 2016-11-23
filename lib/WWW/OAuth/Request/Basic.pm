@@ -12,7 +12,7 @@ use WWW::OAuth::Util 'form_urlencode';
 use Role::Tiny::With;
 with 'WWW::OAuth::Request';
 
-our $VERSION = '0.004';
+our $VERSION = '0.005';
 
 sub content_is_form {
 	my $self = shift;

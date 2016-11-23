@@ -9,6 +9,8 @@ requires 'Role::Tiny' => '2.000000';
 requires 'Scalar::Util';
 requires 'URI' => '1.28';
 requires 'URI::Escape' => '3.26';
+requires 'WWW::Form::UrlEncoded' => '0.23';
+recommends 'WWW::Form::UrlEncoded::XS' => '0.23';
 on test => sub {
 	requires 'Data::Dumper';
 	requires 'JSON::PP';

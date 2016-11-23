@@ -12,11 +12,11 @@ is form_urlencode({}), '', 'empty form';
 is form_urlencode([undef, 'foo']), '=foo', 'empty key';
 is form_urlencode([foo => undef]), 'foo=', 'empty value';
 is_deeply form_urldecode(''), [], 'empty form';
-is_deeply form_urldecode('&'), [], 'empty form';
 is_deeply form_urldecode('='), ['', ''], 'empty key and value';
 is_deeply form_urldecode('=foo'), ['', 'foo'], 'empty key';
 is_deeply form_urldecode('foo'), ['foo', ''], 'empty value';
-is_deeply form_urldecode('foo&=bar&'), ['foo', '', '', 'bar'], 'weird form';
+is_deeply form_urldecode('&'), ['', '', '', ''], 'empty keys and values';
+is_deeply form_urldecode('foo&=bar&'), ['foo', '', '', 'bar', '', ''], 'weird form';
 
 my ($decoded, $encoded);
 $decoded = [foo => ['☃', '❤'], '❤' => 'a b c', baz => 0];

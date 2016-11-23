@@ -4,11 +4,10 @@ use strict;
 use warnings;
 use Carp 'croak';
 use Exporter 'import';
-use List::Util 'pairs';
 use Module::Runtime 'require_module';
 use Role::Tiny ();
 use Scalar::Util 'blessed';
-use URI::Escape 'uri_escape_utf8', 'uri_unescape';
+use WWW::Form::UrlEncoded 'build_urlencoded_utf8', 'parse_urlencoded_arrayref';
 
 our $VERSION = '0.004';
 
@@ -17,37 +16,21 @@ our @EXPORT_OK = qw(form_urlencode form_urldecode oauth_request);
 sub form_urldecode {
 	my $string = shift;
 	return [] unless defined $string;
-	my @sequences = grep { length } split /&/, $string;
-	my @form = map { my ($k, $v) = split /=/, $_, 2; ($k, $v) } @sequences;
-	foreach my $elem (@form) {
-		$elem = '' unless defined $elem;
-		$elem =~ s/\+/ /g;
-		$elem = uri_unescape $elem;
-		utf8::decode $elem;
-	}
-	return \@form;
+	my $form = parse_urlencoded_arrayref $string;
+	utf8::decode $_ for @$form;
+	return $form;
 }
 
 sub form_urlencode {
 	my $form = shift;
-	my @pairs;
 	if (ref $form eq 'ARRAY') {
 		croak 'Form to urlencode must be even-sized' if @$form % 2;
-		@pairs = pairs @$form;
 	} elsif (ref $form eq 'HASH') {
-		@pairs = sort { $a->[0] cmp $b->[0] } pairs %$form;
+		$form = [map { ($_ => $form->{$_}) } sort keys %$form];
 	} else {
 		croak 'Form to urlencode must be hash or array reference';
 	}
-	my @sequences;
-	local $URI::Escape::escapes{' '} = '+';
-	foreach my $pair (@pairs) {
-		my $key = $pair->[0];
-		my @values = ref $pair->[1] eq 'ARRAY' ? @{$pair->[1]} : $pair->[1];
-		$_ = defined $_ ? uri_escape_utf8 $_ : '' for $key, @values;
-		push @sequences, "$key=$_" for @values;
-	}
-	return join '&', @sequences;
+	return build_urlencoded_utf8 $form, '&';
 }
 
 sub oauth_request {

@@ -1,4 +1,5 @@
 {{$NEXT}}
+  - Use WWW::Form::UrlEncoded to implement utility functions form_urlencode and form_urldecode
 
 0.003     2016-05-19 00:35:49 EDT
   - Use Test::TCP for author tests

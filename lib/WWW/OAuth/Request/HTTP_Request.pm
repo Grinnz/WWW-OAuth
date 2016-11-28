@@ -89,7 +89,7 @@ L<WWW::OAuth::Request::HTTP_Request> implements the following attributes.
 =head2 request
 
  my $http_request = $req->request;
- $req             = $req->request(HTTP::Request->new(GET => $url);
+ $req             = $req->request(HTTP::Request->new(GET => $url));
 
 L<HTTP::Request> object to authenticate.
 
@@ -131,7 +131,9 @@ Set or return request method from L</"request">.
  $http_response = $req->request_with(LWP::UserAgent->new);
 
 Run request with passed user-agent object, and return L<HTTP::Response> object.
-User-agent may be L<LWP::UserAgent>, L<HTTP::Thin>, or L<Net::Async::HTTP>.
+User-agent may be L<LWP::UserAgent>, L<HTTP::Thin>, or L<Net::Async::HTTP>. If
+run with L<Net::Async::HTTP>, the return value is a L<Future> yielding the
+L<HTTP::Response> object as in L<< "do_request" in Net::Async::HTTP|Net::Async::HTTP/"$response = $http->do_request( %args )->get" >>.
 
 =head2 url
 

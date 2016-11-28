@@ -79,27 +79,27 @@
    "provides" : {
       "WWW::OAuth" : {
          "file" : "lib/WWW/OAuth.pm",
-         "version" : "0.004"
+         "version" : "0.005"
       },
       "WWW::OAuth::Request" : {
          "file" : "lib/WWW/OAuth/Request.pm",
-         "version" : "0.004"
+         "version" : "0.005"
       },
       "WWW::OAuth::Request::Basic" : {
          "file" : "lib/WWW/OAuth/Request/Basic.pm",
-         "version" : "0.004"
+         "version" : "0.005"
       },
       "WWW::OAuth::Request::HTTP_Request" : {
          "file" : "lib/WWW/OAuth/Request/HTTP_Request.pm",
-         "version" : "0.004"
+         "version" : "0.005"
       },
       "WWW::OAuth::Request::Mojo" : {
          "file" : "lib/WWW/OAuth/Request/Mojo.pm",
-         "version" : "0.004"
+         "version" : "0.005"
       },
       "WWW::OAuth::Util" : {
          "file" : "lib/WWW/OAuth/Util.pm",
-         "version" : "0.004"
+         "version" : "0.005"
       }
    },
    "release_status" : "stable",
@@ -114,7 +114,7 @@
          "web" : "https://github.com/Grinnz/WWW-OAuth"
       }
    },
-   "version" : "0.004",
+   "version" : "0.005",
    "x_Dist_Zilla" : {
       "perl" : {
          "version" : "5.024000"
@@ -303,7 +303,7 @@
                   "branch" : null,
                   "changelog" : "Changes",
                   "signed" : 0,
-                  "tag" : "v0.004",
+                  "tag" : "v0.005",
                   "tag_format" : "v%v",
                   "tag_message" : "v%v"
                },

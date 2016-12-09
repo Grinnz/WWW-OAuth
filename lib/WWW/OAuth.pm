@@ -28,12 +28,24 @@ sub authenticate {
 	my @req_args = (shift);
 	push @req_args, shift unless ref $req_args[0];
 	my $req = oauth_request(@req_args);
+	
+	my $auth_header = $self->authorization_header($req, @_);
+	
+	$req->header(Authorization => $auth_header);
+	return $req;
+}
+
+sub authorization_header {
+	my $self = shift;
+	my @req_args = (shift);
+	push @req_args, shift unless ref $req_args[0];
+	my $req = oauth_request(@req_args);
 	my $extra_params = shift;
 	
 	my ($client_id, $client_secret, $token, $token_secret, $signature_method) =
 		($self->client_id, $self->client_secret, $self->token, $self->token_secret, $self->signature_method);
 	
-	croak 'Client ID and secret are required to authenticate'
+	croak 'Client ID and secret are required to generate authorization header'
 		unless defined $client_id and defined $client_secret;
 	
 	croak 'RSA-SHA1 signature method requires a coderef or an object with a "sign" method'
@@ -65,8 +77,7 @@ sub authenticate {
 	$oauth_params{oauth_signature} = $self->$sign($req, \%oauth_params, $client_secret, $token_secret);
 	
 	my $auth_str = join ', ', map { $_ . '="' . uri_escape_utf8($oauth_params{$_}) . '"' } sort keys %oauth_params;
-	$req->header(Authorization => "OAuth $auth_str");
-	return $req;
+	return "OAuth $auth_str";
 }
 
 sub _nonce {
@@ -128,6 +139,10 @@ WWW::OAuth - Portable OAuth 1.0 authentication
    token => $token,
    token_secret => $token_secret,
  );
+ 
+ # Just retrieve authorization header
+ my $auth_header = $oauth->authorization_header($http_request, { oauth_callback => $url });
+ $http_request->header(Authorization => $auth_header);
  
  # HTTP::Tiny
  use HTTP::Tiny;
@@ -262,10 +277,21 @@ L<WWW::OAuth> implements the following methods.
  my $container = $oauth->authenticate(Basic => { method => 'GET', url => $url }, \%oauth_params);
 
 Wraps the HTTP request in a container with L<WWW::OAuth::Util/"oauth_request">,
-then updates the request URL, content, and headers as needed to construct and
-sign the request for OAuth 1.0. OAuth parameters (starting with C<oauth_>) may
-be optionally specified in a hashref, and will override any generated or
-existing OAuth parameters of the same name. Returns the container object.
+then sets the Authorization header using L</"authorization_header"> to sign the
+request for OAuth 1.0. Returns the container object.
+
+=head2 authorization_header
+
+ my $auth_header = $oauth->authorization_header($container, \%oauth_params);
+ my $auth_header = $oauth->authorization_header($http_request, \%oauth_params);
+ my $auth_header = $oauth->authorization_header(Basic => { method => 'GET', url => $url }, \%oauth_params);
+
+Forms an OAuth 1.0 signed Authorization header for the passed request. As in
+L</"authenticate">, the request may be specified in any form accepted by
+L<WWW::OAuth::Util/"oauth_request">. OAuth parameters (starting with C<oauth_>)
+may be optionally specified in a hashref and will override any generated OAuth
+parameters of the same name (they should not be present in the request URL or
+body parameters). Returns the signed header value.
 
 =head1 HTTP REQUEST CONTAINERS
 

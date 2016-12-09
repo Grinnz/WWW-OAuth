@@ -37,9 +37,10 @@ my $oauth_request_url = $oauth_base_url . 'request_token';
 my $oauth_request = _request(POST => $oauth_request_url);
 
 my $auth = WWW::OAuth->new(client_id => $api_key, client_secret => $api_secret);
-$auth->authenticate($oauth_request, { oauth_callback => 'oob' });
-my $auth_header = $oauth_request->header('Authorization');
-ok defined $auth_header, 'Authorization header has been set';
+my $auth_header = $auth->authorization_header($oauth_request, { oauth_callback => 'oob' });
+like $auth_header, qr/^OAuth oauth_/, 'Formed Authorization header';
+$oauth_request->header(Authorization => $auth_header);
+is $auth_header, $oauth_request->header('Authorization'), 'Authorization header has been set';
 
 my $oauth_params = _parse_oauth_header($auth_header);
 is $oauth_params->{oauth_consumer_key}, $api_key, 'oauth_consumer_key is set to API key';

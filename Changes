@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.005     2016-12-08 22:49:18 EST
   - No longer move parameters starting with oauth_ to the Authorization header
     from the query or body parameters; the only modification to the request is
     to add the Authorization header itself, as per the spec. Custom oauth_

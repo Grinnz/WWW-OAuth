@@ -276,7 +276,8 @@ L<WWW::OAuth> implements the following methods.
 
 Wraps the HTTP request in a container with L<WWW::OAuth::Util/"oauth_request">,
 then sets the Authorization header using L</"authorization_header"> to sign the
-request for OAuth 1.0. Returns the container object.
+request for OAuth 1.0. An optional hashref of OAuth parameters will be passed
+through to L</"authorization_header">. Returns the container object.
 
 =head2 authorization_header
 

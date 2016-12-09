@@ -15,6 +15,10 @@ WWW::OAuth - Portable OAuth 1.0 authentication
    token_secret => $token_secret,
  );
  
+ # Just retrieve authorization header
+ my $auth_header = $oauth->authorization_header($http_request, { oauth_callback => $url });
+ $http_request->header(Authorization => $auth_header);
+ 
  # HTTP::Tiny
  use HTTP::Tiny;
  my $res = $oauth->authenticate(Basic => { method => 'GET', url => $url })
@@ -148,10 +152,22 @@ L<WWW::OAuth> implements the following methods.
  my $container = $oauth->authenticate(Basic => { method => 'GET', url => $url }, \%oauth_params);
 
 Wraps the HTTP request in a container with L<WWW::OAuth::Util/"oauth_request">,
-then updates the request URL, content, and headers as needed to construct and
-sign the request for OAuth 1.0. OAuth parameters (starting with C<oauth_>) may
-be optionally specified in a hashref, and will override any generated or
-existing OAuth parameters of the same name. Returns the container object.
+then sets the Authorization header using L</"authorization_header"> to sign the
+request for OAuth 1.0. An optional hashref of OAuth parameters will be passed
+through to L</"authorization_header">. Returns the container object.
+
+=head2 authorization_header
+
+ my $auth_header = $oauth->authorization_header($container, \%oauth_params);
+ my $auth_header = $oauth->authorization_header($http_request, \%oauth_params);
+ my $auth_header = $oauth->authorization_header(Basic => { method => 'GET', url => $url }, \%oauth_params);
+
+Forms an OAuth 1.0 signed Authorization header for the passed request. As in
+L</"authenticate">, the request may be specified in any form accepted by
+L<WWW::OAuth::Util/"oauth_request">. OAuth parameters (starting with C<oauth_>)
+may be optionally specified in a hashref and will override any generated OAuth
+parameters of the same name (they should not be present in the request URL or
+body parameters). Returns the signed header value.
 
 =head1 HTTP REQUEST CONTAINERS
 

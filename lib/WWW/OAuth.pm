@@ -25,8 +25,7 @@ my %signature_methods = (
 
 sub authenticate {
 	my $self = shift;
-	my @req_args = (shift);
-	push @req_args, shift unless ref $req_args[0];
+	my @req_args = ref $_[0] ? shift() : (shift, shift);
 	my $req = oauth_request(@req_args);
 	
 	my $auth_header = $self->authorization_header($req, @_);
@@ -37,8 +36,7 @@ sub authenticate {
 
 sub authorization_header {
 	my $self = shift;
-	my @req_args = (shift);
-	push @req_args, shift unless ref $req_args[0];
+	my @req_args = ref $_[0] ? shift() : (shift, shift);
 	my $req = oauth_request(@req_args);
 	my $extra_params = shift;
 	

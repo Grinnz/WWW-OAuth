@@ -1,8 +1,7 @@
 package WWW::OAuth::Request;
 
-use List::Util 'pairgrep';
 use URI;
-use WWW::OAuth::Util 'form_urldecode', 'form_urlencode';
+use WWW::OAuth::Util 'form_urldecode';
 
 use Role::Tiny;
 
@@ -12,25 +11,7 @@ requires 'method', 'url', 'content', 'content_is_form', 'header', 'request_with'
 
 sub query_pairs { [map { utf8::decode $_; $_ } URI->new(shift->url)->query_form] }
 
-sub remove_query_params {
-	my $self = shift;
-	my %delete_names = map { ($_ => 1) } @_;
-	my $url = URI->new($self->url);
-	my @params = pairgrep { utf8::decode $a; !exists $delete_names{$a} } $url->query_form;
-	$url->query_form(\@params);
-	$self->url("$url");
-	return $self;
-}
-
 sub body_pairs { form_urldecode shift->content }
-
-sub remove_body_params {
-	my $self = shift;
-	my %delete_names = map { ($_ => 1) } @_;
-	my @params = pairgrep { !exists $delete_names{$a} } @{$self->body_pairs};
-	$self->content(form_urlencode \@params);
-	return $self;
-}
 
 1;
 
@@ -96,19 +77,6 @@ Set or return request method. Must be implemented to compose role.
 
 Return query parameters from L</"url"> as an even-sized arrayref of keys and
 values.
-
-=head2 remove_body_params
-
- $req = $req->remove_body_params('foo', 'bar');
-
-Remove body parameters from C<application/x-www-form-urlencoded> L</"content">
-matching the specified key(s).
-
-=head2 remove_query_params
-
- $req = $req->remove_query_params('foo', 'bar');
-
-Remove query parameters from L</"url"> matching the specified key(s).
 
 =head2 request_with
 

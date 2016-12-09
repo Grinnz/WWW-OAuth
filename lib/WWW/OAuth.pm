@@ -52,20 +52,6 @@ sub authenticate {
 	);
 	$oauth_params{oauth_token} = $token if defined $token;
 	
-	# All oauth parameters should be moved to the header
-	my %query_oauth_params = pairgrep { $a =~ m/^oauth_/ } @{$req->query_pairs};
-	if (%query_oauth_params) {
-		%oauth_params = (%oauth_params, %query_oauth_params);
-		$req->remove_query_params(keys %query_oauth_params);
-	}
-	if ($req->content_is_form) {
-		my %body_oauth_params = pairgrep { $a =~ m/^oauth_/ } @{$req->body_pairs};
-		if (%body_oauth_params) {
-			%oauth_params = (%oauth_params, %body_oauth_params);
-			$req->remove_body_params(keys %body_oauth_params);
-		}
-	}
-	
 	# Extra parameters passed to authenticate()
 	if (defined $extra_params) {
 		croak 'OAuth parameters must be specified as a hashref' unless ref $extra_params eq 'HASH';

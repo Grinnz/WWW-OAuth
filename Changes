@@ -1,4 +1,11 @@
 {{$NEXT}}
+  - No longer move parameters starting with oauth_ to the Authorization header
+    from the query or body parameters; the only modification to the request is
+    to add the Authorization header itself, as per the spec. Custom oauth_
+    parameters should be passed directly to the authenticate method rather than
+    in query or body parameters, so they can be properly sent in the header.
+  - Remove the remove_query_params and remove_body_params methods from the
+    WWW::OAuth::Request role as they are no longer needed.
 
 0.004     2016-11-23 17:29:28 EST
   - Use WWW::Form::UrlEncoded to implement utility functions form_urlencode and form_urldecode

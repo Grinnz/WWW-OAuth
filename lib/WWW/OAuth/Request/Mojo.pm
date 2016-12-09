@@ -44,23 +44,7 @@ sub content_is_form {
 
 sub query_pairs { shift->request->query_params->pairs }
 
-sub remove_query_params {
-	my $self = shift;
-	my $params = $self->request->query_params;
-	$params->remove($_) for @_;
-	return $self;
-}
-
 sub body_pairs { require Mojo::Parameters; Mojo::Parameters->new(shift->request->body)->pairs }
-
-sub remove_body_params {
-	my $self = shift;
-	require Mojo::Parameters;
-	my $params = Mojo::Parameters->new($self->request->body);
-	$params->remove($_) for @_;
-	$self->request->body($params->to_string);
-	return $self;
-}
 
 sub header {
 	my $self = shift;
@@ -153,18 +137,6 @@ Set or return request method from L</"request">.
 
 Return query parameters from L</"request"> as an even-sized arrayref of keys
 and values.
-
-=head2 remove_body_params
-
- $req = $req->remove_body_params('foo', 'bar');
-
-Remove body parameters from L</"request"> matching the specified key(s).
-
-=head2 remove_query_params
-
- $req = $req->remove_query_params('foo', 'bar');
-
-Remove query parameters from L</"request"> matching the specified key(s).
 
 =head2 request_with
 

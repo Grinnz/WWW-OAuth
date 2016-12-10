@@ -1,6 +1,10 @@
 {{$NEXT}}
   - Improve the default oauth_nonce algorithm to provide better uniqueness
   - Removed dependency on MIME::Base64
+  - The signature_method attribute now accepts 'RSA-SHA1' and custom signature
+    methods, but for these signature methods a coderef must be provided to the
+    new signer attribute. RSA-SHA1 signers can no longer be passed directly as
+    signature_method.
 
 0.005     2016-12-08 22:49:18 EST
   - No longer move parameters starting with oauth_ to the Authorization header

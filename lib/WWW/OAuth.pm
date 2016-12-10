@@ -2,8 +2,15 @@ package WWW::OAuth;
 
 use strict;
 use warnings;
+
+my %default_signer = (
+	'PLAINTEXT' => \&_signer_plaintext,
+	'HMAC-SHA1' => \&_signer_hmac_sha1,
+);
+
 use Class::Tiny::Chained qw(client_id client_secret token token_secret), {
 	signature_method => 'HMAC-SHA1',
+	signer => sub { $default_signer{$_[0]->signature_method} },
 };
 
 use Carp 'croak';
@@ -15,12 +22,6 @@ use URI::Escape 'uri_escape_utf8';
 use WWW::OAuth::Util 'oauth_request';
 
 our $VERSION = '0.006';
-
-my %signature_methods = (
-	'PLAINTEXT' => '_signature_plaintext',
-	'HMAC-SHA1' => '_signature_hmac_sha1',
-	'RSA-SHA1' => '_signature_rsa_sha1',
-);
 
 sub authenticate {
 	my $self = shift;
@@ -39,18 +40,20 @@ sub authorization_header {
 	my $req = oauth_request(@req_args);
 	my $extra_params = shift;
 	
-	my ($client_id, $client_secret, $token, $token_secret, $signature_method) =
-		($self->client_id, $self->client_secret, $self->token, $self->token_secret, $self->signature_method);
+	my ($client_id, $client_secret, $token, $token_secret, $signature_method, $signer) =
+		($self->client_id, $self->client_secret, $self->token, $self->token_secret, $self->signature_method, $self->signer);
 	
 	croak 'Client ID and secret are required to generate authorization header'
 		unless defined $client_id and defined $client_secret;
 	
-	croak 'RSA-SHA1 signature method requires a coderef or an object with a "sign" method'
-		if $signature_method eq 'RSA-SHA1';
-	$signature_method = 'RSA-SHA1' if (blessed $signature_method and $signature_method->can('sign'))
-		or (!blessed $signature_method and ref $signature_method eq 'CODE');
-	my $sign = $signature_methods{$signature_method};
-	croak "Unknown signature method $signature_method" unless defined $sign;
+	croak "Signer is required for signature method $signature_method" unless defined $signer;
+	
+	if ($signature_method eq 'RSA-SHA1' and blessed $signer) {
+		my $signer_obj = $signer;
+		croak 'Signer for RSA-SHA1 must have "sign" method' unless $signer_obj->can('sign');
+		$signer = sub { $signer_obj->sign($_[0]) };
+	}
+	croak "Signer for $signature_method must be a coderef" unless !blessed $signer and ref $signer eq 'CODE';
 	
 	my %oauth_params = (
 		oauth_consumer_key => $client_id,
@@ -71,7 +74,9 @@ sub authorization_header {
 	# This parameter is not allowed when creating the signature
 	delete $oauth_params{oauth_signature};
 	
-	$oauth_params{oauth_signature} = $self->$sign($req, \%oauth_params, $client_secret, $token_secret);
+	# Don't bother to generate signature base string for PLAINTEXT method
+	my $base_str = $signature_method eq 'PLAINTEXT' ? '' : _signature_base_string($req, \%oauth_params);
+	$oauth_params{oauth_signature} = $signer->($base_str, $client_secret, $token_secret);
 	
 	my $auth_str = join ', ', map { $_ . '="' . uri_escape_utf8($oauth_params{$_}) . '"' } sort keys %oauth_params;
 	return "OAuth $auth_str";
@@ -79,28 +84,19 @@ sub authorization_header {
 
 sub _nonce { sha1_hex join '$', \my $dummy, time, $$, rand }
 
-sub _signature_plaintext {
-	my ($self, $req, $oauth_params, $client_secret, $token_secret) = @_;
+sub _signer_plaintext {
+	my ($base_str, $client_secret, $token_secret) = @_;
 	$token_secret = '' unless defined $token_secret;
 	return uri_escape_utf8($client_secret) . '&' . uri_escape_utf8($token_secret);
 }
 
-sub _signature_hmac_sha1 {
-	my ($self, $req, $oauth_params, $client_secret, $token_secret) = @_;
+sub _signer_hmac_sha1 {
+	my ($base_str, $client_secret, $token_secret) = @_;
 	$token_secret = '' unless defined $token_secret;
-	my $base_str = _signature_base_string($req, $oauth_params);
 	my $signing_key = uri_escape_utf8($client_secret) . '&' . uri_escape_utf8($token_secret);
 	my $digest = hmac_sha1_base64($base_str, $signing_key);
 	$digest .= '='x(4 - length($digest) % 4) if length($digest) % 4; # Digest::SHA does not pad Base64 digests
 	return $digest;
-}
-
-sub _signature_rsa_sha1 {
-	my ($self, $req, $oauth_params) = @_;
-	my $base_str = _signature_base_string($req, $oauth_params);
-	my $signer = $self->signature_method;
-	return $signer->sign($base_str) if blessed $signer; # object
-	return $signer->($base_str); # code ref
 }
 
 sub _signature_base_string {
@@ -258,9 +254,27 @@ requests).
  my $method = $oauth->signature_method;
  $oauth     = $oauth->signature_method($method);
 
-Signature method, can be C<PLAINTEXT>, C<HMAC-SHA1>, a coderef that implements
-the C<RSA-SHA1> method, or an object that implements the C<RSA-SHA1> method
-with a C<sign> method like L<Crypt::OpenSSL::RSA>. Defaults to C<HMAC-SHA1>.
+Signature method, can be C<PLAINTEXT>, C<HMAC-SHA1>, C<RSA-SHA1>, or a custom
+signature method. For C<RSA-SHA1> or custom signature methods, a L</"signer">
+must be provided. Defaults to C<HMAC-SHA1>.
+
+=head2 signer
+
+ my $signer = $oauth->signer;
+ $oauth     = $oauth->signer(sub {
+   my ($base_str, $client_secret, $token_secret) = @_;
+   ...
+   return $signature;
+ });
+
+Coderef which implements the L</"signature_method">. A default signer is
+provided for signature methods C<PLAINTEXT> and C<HMAC-SHA1>; this attribute is
+required for other signature methods. For signature method C<RSA-SHA1>, this
+attribute may also be an object which has a C<sign> method like
+L<Crypt::OpenSSL::RSA>.
+
+The signer is passed the computed signature base string, the client secret, and
+(if present) the token secret, and must return the signature string.
 
 =head1 METHODS
 

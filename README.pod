@@ -138,9 +138,27 @@ requests).
  my $method = $oauth->signature_method;
  $oauth     = $oauth->signature_method($method);
 
-Signature method, can be C<PLAINTEXT>, C<HMAC-SHA1>, a coderef that implements
-the C<RSA-SHA1> method, or an object that implements the C<RSA-SHA1> method
-with a C<sign> method like L<Crypt::OpenSSL::RSA>. Defaults to C<HMAC-SHA1>.
+Signature method, can be C<PLAINTEXT>, C<HMAC-SHA1>, C<RSA-SHA1>, or a custom
+signature method. For C<RSA-SHA1> or custom signature methods, a L</"signer">
+must be provided. Defaults to C<HMAC-SHA1>.
+
+=head2 signer
+
+ my $signer = $oauth->signer;
+ $oauth     = $oauth->signer(sub {
+   my ($base_str, $client_secret, $token_secret) = @_;
+   ...
+   return $signature;
+ });
+
+Coderef which implements the L</"signature_method">. A default signer is
+provided for signature methods C<PLAINTEXT> and C<HMAC-SHA1>; this attribute is
+required for other signature methods. For signature method C<RSA-SHA1>, this
+attribute may also be an object which has a C<sign> method like
+L<Crypt::OpenSSL::RSA>.
+
+The signer is passed the computed signature base string, the client secret, and
+(if present) the token secret, and must return the signature string.
 
 =head1 METHODS
 

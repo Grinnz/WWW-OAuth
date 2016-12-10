@@ -21,7 +21,6 @@ my %WriteMakefileArgs = (
     "Class::Tiny::Chained" => 0,
     "Digest::SHA" => 0,
     "List::Util" => "1.33",
-    "MIME::Base64" => 0,
     "Module::Runtime" => 0,
     "Role::Tiny" => "2.000000",
     "Scalar::Util" => 0,
@@ -37,7 +36,7 @@ my %WriteMakefileArgs = (
     "Test::More" => "0.88",
     "Test::Needs" => 0
   },
-  "VERSION" => "0.005",
+  "VERSION" => "0.006",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -53,7 +52,6 @@ my %FallbackPrereqs = (
   "File::Spec" => 0,
   "JSON::PP" => 0,
   "List::Util" => "1.33",
-  "MIME::Base64" => 0,
   "Module::Runtime" => 0,
   "Role::Tiny" => "2.000000",
   "Scalar::Util" => 0,

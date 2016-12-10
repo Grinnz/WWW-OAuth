@@ -7,9 +7,8 @@ use Class::Tiny::Chained qw(client_id client_secret token token_secret), {
 };
 
 use Carp 'croak';
-use Digest::SHA 'hmac_sha1';
+use Digest::SHA 'hmac_sha1_base64', 'sha1_hex';
 use List::Util 'all', 'pairs', 'pairgrep';
-use MIME::Base64 'encode_base64';
 use Scalar::Util 'blessed';
 use URI;
 use URI::Escape 'uri_escape_utf8';
@@ -78,11 +77,7 @@ sub authorization_header {
 	return "OAuth $auth_str";
 }
 
-sub _nonce {
-	my $str = encode_base64 join('', map { chr int rand 256 } 1..32), '';
-	$str =~ s/[^a-zA-Z0-9]//g;
-	return $str;
-}
+sub _nonce { sha1_hex join '$', \my $dummy, time, $$, rand }
 
 sub _signature_plaintext {
 	my ($self, $req, $oauth_params, $client_secret, $token_secret) = @_;
@@ -95,7 +90,9 @@ sub _signature_hmac_sha1 {
 	$token_secret = '' unless defined $token_secret;
 	my $base_str = _signature_base_string($req, $oauth_params);
 	my $signing_key = uri_escape_utf8($client_secret) . '&' . uri_escape_utf8($token_secret);
-	return encode_base64(hmac_sha1($base_str, $signing_key), '');
+	my $digest = hmac_sha1_base64($base_str, $signing_key);
+	$digest .= '='x(4 - length($digest) % 4) if length($digest) % 4; # Digest::SHA does not pad Base64 digests
+	return $digest;
 }
 
 sub _signature_rsa_sha1 {
@@ -160,11 +157,12 @@ WWW::OAuth - Portable OAuth 1.0 authentication
 =head1 DESCRIPTION
 
 L<WWW::OAuth> implements OAuth 1.0 request authentication according to
-L<RFC 5849|http://tools.ietf.org/html/rfc5849>. It does not implement the user
-agent requests needed for the complete OAuth 1.0 authorization flow; it only
-prepares and signs requests, leaving the rest up to your application. It can
-authenticate requests for L<LWP::UserAgent>, L<Mojo::UserAgent>, L<HTTP::Tiny>,
-and can be extended to operate on other types of requests.
+L<RFC 5849|http://tools.ietf.org/html/rfc5849> (sometimes referred to as OAuth
+1.0A). It does not implement the user agent requests needed for the complete
+OAuth 1.0 authorization flow; it only prepares and signs requests, leaving the
+rest up to your application. It can authenticate requests for
+L<LWP::UserAgent>, L<Mojo::UserAgent>, L<HTTP::Tiny>, and can be extended to
+operate on other types of requests.
 
 Some user agents can be configured to automatically authenticate each request
 with a L<WWW::OAuth> object.

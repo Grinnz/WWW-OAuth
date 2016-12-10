@@ -37,11 +37,12 @@ WWW::OAuth - Portable OAuth 1.0 authentication
 =head1 DESCRIPTION
 
 L<WWW::OAuth> implements OAuth 1.0 request authentication according to
-L<RFC 5849|http://tools.ietf.org/html/rfc5849>. It does not implement the user
-agent requests needed for the complete OAuth 1.0 authorization flow; it only
-prepares and signs requests, leaving the rest up to your application. It can
-authenticate requests for L<LWP::UserAgent>, L<Mojo::UserAgent>, L<HTTP::Tiny>,
-and can be extended to operate on other types of requests.
+L<RFC 5849|http://tools.ietf.org/html/rfc5849> (sometimes referred to as OAuth
+1.0A). It does not implement the user agent requests needed for the complete
+OAuth 1.0 authorization flow; it only prepares and signs requests, leaving the
+rest up to your application. It can authenticate requests for
+L<LWP::UserAgent>, L<Mojo::UserAgent>, L<HTTP::Tiny>, and can be extended to
+operate on other types of requests.
 
 Some user agents can be configured to automatically authenticate each request
 with a L<WWW::OAuth> object.

@@ -2,9 +2,8 @@ use strict;
 use warnings;
 use Test::More;
 use Data::Dumper 'Dumper';
-use Digest::SHA 'hmac_sha1';
+use Digest::SHA 'hmac_sha1_base64';
 use JSON::PP 'decode_json';
-use MIME::Base64 'encode_base64';
 use URI;
 use URI::Escape 'uri_escape_utf8', 'uri_unescape';
 use WWW::OAuth;
@@ -137,7 +136,9 @@ sub _test_signature {
 	my $base_str = uc($method) . '&' . uri_escape_utf8($request_url) . '&' . uri_escape_utf8($params_str);
 	my $signing_key = uri_escape_utf8($client_secret) . '&';
 	$signing_key .= uri_escape_utf8($token_secret) if defined $token_secret;
-	my $test_signature = encode_base64(hmac_sha1($base_str, $signing_key), '');
+	my $test_signature = hmac_sha1_base64($base_str, $signing_key);
+	$test_signature .= '='x(4 - length($test_signature) % 4) if length($test_signature) % 4;
+	return $test_signature;
 }
 
 done_testing;

@@ -1,4 +1,6 @@
 {{$NEXT}}
+  - Improve the default oauth_nonce algorithm to provide better uniqueness
+  - Removed dependency on MIME::Base64
 
 0.005     2016-12-08 22:49:18 EST
   - No longer move parameters starting with oauth_ to the Authorization header

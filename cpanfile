@@ -3,7 +3,6 @@ requires 'Carp';
 requires 'Class::Tiny::Chained';
 requires 'Digest::SHA';
 requires 'List::Util' => '1.33';
-requires 'MIME::Base64';
 requires 'Module::Runtime';
 requires 'Role::Tiny' => '2.000000';
 requires 'Scalar::Util';

@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.006     2016-12-09 23:46:25 EST
   - Improve the default oauth_nonce algorithm to provide better uniqueness
   - Removed dependency on MIME::Base64
   - The signature_method attribute now accepts 'RSA-SHA1' and custom signature

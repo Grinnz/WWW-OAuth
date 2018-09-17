@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+1.000     2018-09-17 19:08:03 EDT
   - Support 'realm' protocol parameter (not included in signature base string)
     as per RFC 5849.
   - Added request_with_p method to Mojo request wrapper.

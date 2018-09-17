@@ -183,10 +183,11 @@ through to L</"authorization_header">. Returns the container object.
 
 Forms an OAuth 1.0 signed Authorization header for the passed request. As in
 L</"authenticate">, the request may be specified in any form accepted by
-L<WWW::OAuth::Util/"oauth_request">. OAuth parameters (starting with C<oauth_>)
-may be optionally specified in a hashref and will override any generated OAuth
-parameters of the same name (they should not be present in the request URL or
-body parameters). Returns the signed header value.
+L<WWW::OAuth::Util/"oauth_request">. OAuth protocol parameters (starting with
+C<oauth_> or the special parameter C<realm>) may be optionally specified in a
+hashref and will override any generated protocol parameters of the same name
+(they should not be present in the request URL or body parameters). Returns the
+signed header value.
 
 =head1 HTTP REQUEST CONTAINERS
 

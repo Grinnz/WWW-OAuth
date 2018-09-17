@@ -1,6 +1,7 @@
 {{$NEXT}}
   - Support 'realm' protocol parameter (not included in signature base string)
-    as per RFC 5849
+    as per RFC 5849.
+  - Added request_with_p method to Mojo request wrapper.
 
 0.006     2016-12-09 23:46:25 EST
   - Improve the default oauth_nonce algorithm to provide better uniqueness

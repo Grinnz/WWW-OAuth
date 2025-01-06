@@ -49,7 +49,7 @@ jobs:
       - id: action
         uses: perl-actions/perl-versions@v1
         with:
-          since-perl: v5.10
+          since-perl: v5.16
           with-devel: true
 
   linux:

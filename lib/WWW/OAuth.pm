@@ -22,7 +22,7 @@ use URI;
 use URI::Escape 'uri_escape_utf8';
 use WWW::OAuth::Util 'oauth_request';
 
-our $VERSION = '1.001';
+our $VERSION = '1.002';
 
 sub authenticate {
 	my $self = shift;

@@ -335,6 +335,10 @@ which is used by L<Mojo::UserAgent> via L<Mojo::Transaction>.
 
 Report any issues on the public bugtracker.
 
+This module was developed primarily to interface with the Twitter API, which is
+now functionally unusable, so further development of this module is unlikely
+without another use case.
+
 =head1 AUTHOR
 
 Dan Book <dbook@cpan.org>

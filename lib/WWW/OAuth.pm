@@ -14,7 +14,7 @@ use Class::Tiny::Chained qw(client_id client_secret token token_secret), {
 };
 
 use Carp 'croak';
-use Crypt::URandom 'urandom_ub';
+use Crypt::SysRandom 'random_bytes';
 use Digest::SHA 'hmac_sha1_base64';
 use List::Util 'all', 'pairs', 'pairgrep';
 use Scalar::Util 'blessed';
@@ -84,7 +84,7 @@ sub authorization_header {
 	return "OAuth $auth_str";
 }
 
-sub _nonce { scalar unpack 'H*', urandom_ub(20) } # random hex string
+sub _nonce { scalar unpack 'H*', random_bytes(20) } # random hex string
 
 sub _signer_plaintext {
 	my ($base_str, $client_secret, $token_secret) = @_;
